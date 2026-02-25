@@ -219,6 +219,7 @@ Stores each paying client's account and widget configuration.
 | border_radius | integer | Widget corner radius in px |
 | position | text | "bottom-right" or "bottom-left" |
 | document_context | text | Optional reference content the AI uses for answers |
+| customization | jsonb | Extensible widget appearance options (see `widget_customization.md`) |
 | plan | text | "starter", "pro", "agency", "enterprise" |
 | message_limit | integer | Monthly message cap based on plan |
 | messages_used | integer | Current month usage counter |
@@ -291,6 +292,7 @@ erDiagram
     int border_radius
     text position
     text document_context
+    jsonb customization
     text plan
     int message_limit
     int messages_used
@@ -415,7 +417,11 @@ Returns widget configuration for a given client. Called once when the widget loa
   "welcomeMessage": "string",
   "primaryColor": "#hex",
   "borderRadius": 12,
-  "position": "bottom-right"
+  "position": "bottom-right",
+  "bubbleIconUrl": "string | null",
+  "logoUrl": "string | null",
+  "greetingMessage": "string | null",
+  "glowEffect": false
 }
 ```
 
