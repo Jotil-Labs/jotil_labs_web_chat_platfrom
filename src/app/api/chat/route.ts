@@ -6,7 +6,7 @@ import {
 import { getActiveClient, createConversation, saveMessage, updateConversationTimestamp, incrementUsage } from '@/lib/db/queries';
 import { buildSystemPrompt } from '@/lib/ai/prompts';
 import { streamChatResponse } from '@/lib/ai/providers';
-import { createMockStreamResponse, MOCK_RESPONSE } from '@/lib/ai/mock';
+import { createMockStreamResponse } from '@/lib/ai/mock';
 import { corsHeaders, corsResponse } from '@/lib/utils/cors';
 import type { ClientConfig, ChatMessage } from '@/types';
 
@@ -114,13 +114,13 @@ export async function POST(req: Request) {
 
     // Mock mode
     if (process.env.MOCK_AI === 'true') {
-      const mockResponse = createMockStreamResponse();
+      const { response: mockResponse, text: mockText } = createMockStreamResponse(message);
       const mockHeaders = new Headers(mockResponse.headers);
       Object.entries(headers).forEach(([k, v]) => mockHeaders.set(k, v));
       mockHeaders.set('X-Conversation-Id', activeConversationId);
 
       // Persist messages in background
-      persistMessages(activeConversationId, message, client.ai_model, clientId);
+      persistMessages(activeConversationId, message, mockText, client.ai_model, clientId);
 
       return new Response(mockResponse.body, {
         status: 200,
@@ -183,6 +183,7 @@ export async function POST(req: Request) {
 async function persistMessages(
   conversationId: string,
   userMessage: string,
+  assistantText: string,
   model: string,
   clientId: string
 ) {
@@ -195,7 +196,7 @@ async function persistMessages(
     await saveMessage({
       conversationId,
       role: 'assistant',
-      content: MOCK_RESPONSE,
+      content: assistantText,
       modelUsed: model,
       tokensUsed: 85,
     });
