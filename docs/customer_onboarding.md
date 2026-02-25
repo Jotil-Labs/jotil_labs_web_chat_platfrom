@@ -71,7 +71,7 @@ Using the information collected in Step 1, write the client-specific system prom
 
 Checklist for a good client prompt:
 
-- Starts with "You are the AI assistant for [Business Name]."
+- Starts with "About the business:" (identity is handled by the base prompt's Persona section using `botName` and `businessName`).
 - Includes a clear business description.
 - Lists services or products.
 - Includes business hours and timezone.
