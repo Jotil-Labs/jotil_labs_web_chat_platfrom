@@ -3,6 +3,13 @@ export type Position = 'bottom-right' | 'bottom-left';
 export type MessageRole = 'user' | 'assistant';
 export type Feedback = 'positive' | 'negative';
 
+export interface ClientCustomization {
+  bubbleIconUrl?: string;
+  logoUrl?: string;
+  greetingMessage?: string;
+  glowEffect?: boolean;
+}
+
 export interface Client {
   id: string;
   name: string;
@@ -15,10 +22,7 @@ export interface Client {
   border_radius: number;
   position: Position;
   document_context: string | null;
-  bubble_icon_url: string | null;
-  logo_url: string | null;
-  greeting_message: string | null;
-  glow_effect: boolean;
+  customization: ClientCustomization;
   plan: Plan;
   message_limit: number;
   messages_used: number;

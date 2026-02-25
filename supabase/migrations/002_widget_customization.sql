@@ -1,6 +1,5 @@
--- Widget customization: glow effect, greeting tooltip, custom icon, logo
+-- Widget customization: single JSONB column for extensible appearance config
+-- New keys can be added without migrations.
+-- Known keys: bubbleIconUrl, logoUrl, greetingMessage, glowEffect
 
-ALTER TABLE clients ADD COLUMN bubble_icon_url text;
-ALTER TABLE clients ADD COLUMN logo_url text;
-ALTER TABLE clients ADD COLUMN greeting_message text;
-ALTER TABLE clients ADD COLUMN glow_effect boolean NOT NULL DEFAULT false;
+ALTER TABLE clients ADD COLUMN customization jsonb NOT NULL DEFAULT '{}';

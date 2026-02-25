@@ -43,16 +43,17 @@ export async function GET(req: Request) {
     });
   }
 
+  const c = client.customization ?? {};
   const config: WidgetConfig = {
     botName: client.bot_name,
     welcomeMessage: client.welcome_message,
     primaryColor: client.primary_color,
     borderRadius: client.border_radius,
     position: client.position,
-    bubbleIconUrl: client.bubble_icon_url ?? null,
-    logoUrl: client.logo_url ?? null,
-    greetingMessage: client.greeting_message ?? null,
-    glowEffect: client.glow_effect,
+    bubbleIconUrl: c.bubbleIconUrl ?? null,
+    logoUrl: c.logoUrl ?? null,
+    greetingMessage: c.greetingMessage ?? null,
+    glowEffect: c.glowEffect ?? false,
   };
 
   return new Response(JSON.stringify(config), {
