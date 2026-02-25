@@ -6,7 +6,7 @@ import {
 import { getActiveClient, createConversation, saveMessage, updateConversationTimestamp, incrementUsage } from '@/lib/db/queries';
 import { buildSystemPrompt } from '@/lib/ai/prompts';
 import { streamChatResponse } from '@/lib/ai/providers';
-import { createMockStreamResponse } from '@/lib/ai/mock';
+import { createMockStreamResponse, MOCK_RESPONSE } from '@/lib/ai/mock';
 import { corsHeaders, corsResponse } from '@/lib/utils/cors';
 import type { ClientConfig, ChatMessage } from '@/types';
 
@@ -135,7 +135,7 @@ export async function POST(req: Request) {
       messages
     );
 
-    const response = result.toDataStreamResponse();
+    const response = result.toUIMessageStreamResponse();
 
     // Persist messages after stream completes
     result.text.then(async (fullText) => {
@@ -192,11 +192,10 @@ async function persistMessages(
       role: 'user',
       content: userMessage,
     });
-    // Mock assistant message for persistence
     await saveMessage({
       conversationId,
       role: 'assistant',
-      content: '[Mock response]',
+      content: MOCK_RESPONSE,
       modelUsed: model,
       tokensUsed: 85,
     });

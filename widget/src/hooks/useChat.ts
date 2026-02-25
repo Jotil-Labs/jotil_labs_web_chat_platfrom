@@ -304,36 +304,38 @@ async function streamResponse(
       buffer = lines.pop() ?? '';
 
       for (const line of lines) {
-        if (!line) continue;
+        if (!line || !line.startsWith('data: ')) continue;
 
-        // Parse AI SDK data stream format
-        if (line.startsWith('0:')) {
-          // Text token
-          try {
-            const token = JSON.parse(line.slice(2)) as string;
-            pendingTokens += token;
-            if (!rafId) {
-              rafId = requestAnimationFrame(flushTokens);
-            }
-          } catch {
-            // Skip malformed tokens
+        const data = line.slice(6);
+        if (data === '[DONE]') break;
+
+        // Parse AI SDK UI message stream events
+        try {
+          const event = JSON.parse(data) as {
+            type: string;
+            delta?: string;
+            errorText?: string;
+          };
+          switch (event.type) {
+            case 'text-delta':
+              pendingTokens += event.delta ?? '';
+              if (!rafId) {
+                rafId = requestAnimationFrame(flushTokens);
+              }
+              break;
+            case 'error':
+              onError(event.errorText ?? 'An error occurred');
+              return;
+            case 'finish':
+              flushTokens();
+              if (rafId) {
+                cancelAnimationFrame(rafId);
+                rafId = null;
+              }
+              break;
           }
-        } else if (line.startsWith('e:')) {
-          // Error
-          try {
-            const errorData = JSON.parse(line.slice(2)) as { message?: string };
-            onError(errorData.message ?? 'An error occurred');
-          } catch {
-            onError('An error occurred');
-          }
-          return;
-        } else if (line.startsWith('d:')) {
-          // Finish signal — flush any remaining tokens
-          flushTokens();
-          if (rafId) {
-            cancelAnimationFrame(rafId);
-            rafId = null;
-          }
+        } catch {
+          // Skip malformed events
         }
       }
     }

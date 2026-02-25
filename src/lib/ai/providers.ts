@@ -34,7 +34,7 @@ export function streamChatResponse(
       role: m.role,
       content: m.content,
     })),
-    maxTokens: 1024,
+    maxOutputTokens: 1024,
     temperature: 0.7,
   });
 }

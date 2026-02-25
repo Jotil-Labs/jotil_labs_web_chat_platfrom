@@ -14,11 +14,11 @@
     "lint": "eslint . --ext .ts,.tsx --ignore-path .gitignore"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^1.0.0",
-    "@ai-sdk/google": "^1.0.0",
-    "@ai-sdk/openai": "^1.0.0",
+    "@ai-sdk/anthropic": "^3.0.47",
+    "@ai-sdk/google": "^3.0.31",
+    "@ai-sdk/openai": "^3.0.33",
     "@supabase/supabase-js": "^2.45.0",
-    "ai": "^4.0.0",
+    "ai": "^6.0.100",
     "next": "^15.1.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"

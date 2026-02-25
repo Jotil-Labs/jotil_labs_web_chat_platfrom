@@ -67,10 +67,11 @@ Total widget JS must stay under 15KB gzipped. Preact (~3KB) is used instead of R
 Widget runs inside Shadow DOM. All styles injected into shadow root, not document head. No global CSS, no global event listeners, no document-level side effects. Shadow DOM does not inherit host fonts — widget declares its own font stack.
 
 ### Custom useChat Hook (Not AI SDK's)
-The AI SDK's `useChat` requires React. Widget uses Preact. A custom hook at `widget/src/hooks/useChat.ts` parses the AI SDK's data stream format directly:
-- `0:` + JSON string → text token
-- `e:` + JSON → error
-- `d:` + JSON → finish signal with metadata
+The AI SDK's `useChat` requires React. Widget uses Preact. A custom hook at `widget/src/hooks/useChat.ts` parses the AI SDK's UI message stream (SSE events):
+- `data: {"type":"text-delta","delta":"..."}` → text token
+- `data: {"type":"error","errorText":"..."}` → error
+- `data: {"type":"finish",...}` → finish signal
+- `data: [DONE]` → stream complete
 
 ### Edge Runtime for /api/chat
 The chat endpoint uses Edge runtime (`export const runtime = 'edge'`) for lower cold start latency on SSE streaming. Non-streaming routes use Node runtime.
@@ -78,7 +79,7 @@ The chat endpoint uses Edge runtime (`export const runtime = 'edge'`) for lower 
 ### Vercel AI SDK Usage
 - Import `streamText`, `generateText`, `generateObject` from `ai` package
 - Use provider/model strings: `"openai/gpt-5-nano"`, `"anthropic/claude-haiku-4-5"`, `"google/gemini-2.0-flash"`
-- Return `result.toDataStreamResponse()` from streaming routes
+- Return `result.toUIMessageStreamResponse()` from streaming routes
 - Never import AI provider SDKs directly — the Vercel AI SDK wraps all of them
 - API keys are server-side Vercel env vars only, never referenced in widget code
 - Adding a new model = update `src/lib/ai/models.ts` only
@@ -142,7 +143,7 @@ Refer to `docs/` for detailed specs:
 ## Gotchas
 
 - Widget and Next.js are separate builds. Changes to `src/types/` affect both.
-- The AI SDK data stream is not plain-text SSE — it uses prefixed lines with type indicators.
+- The AI SDK UI message stream uses SSE format (`data: <JSON>\n\n`) with typed events (text-delta, error, finish, etc.).
 - On mobile (below 640px), widget switches to full-screen overlay. Test separately.
 - Rate limiting is in-memory — resets on deploy, no cross-instance state. Fine for 10-15 clients.
 - Widget's markdown renderer returns a DOM DocumentFragment (not HTML string) to avoid innerHTML.
