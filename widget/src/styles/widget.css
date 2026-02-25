@@ -1,0 +1,521 @@
+/* Jotil Chat Widget Styles */
+/* All styles scoped to Shadow DOM, using --jc-* custom properties */
+
+:host {
+  --jc-primary: #7C3AED;
+  --jc-primary-hover: #6D28D9;
+  --jc-primary-light: rgba(124, 58, 237, 0.1);
+  --jc-on-primary: #FFFFFF;
+  --jc-surface: #FFFFFF;
+  --jc-surface-secondary: #F3F4F6;
+  --jc-text: #1F2937;
+  --jc-text-secondary: #6B7280;
+  --jc-border: #E5E7EB;
+  --jc-error: #DC2626;
+  --jc-error-light: #FEF2F2;
+  --jc-shadow: rgba(0, 0, 0, 0.12);
+  --jc-border-radius: 12px;
+
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--jc-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Visually hidden for accessibility */
+.jc-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---- Bubble Button ---- */
+.jc-bubble-button {
+  position: fixed;
+  bottom: 24px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  background: var(--jc-primary);
+  color: var(--jc-on-primary);
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 150ms ease;
+  z-index: 2147483646;
+  animation: jc-fade-in 200ms ease-out;
+}
+
+.jc-bubble-button:hover {
+  transform: scale(1.05);
+}
+
+.jc-bubble-button:focus-visible {
+  outline: 2px solid var(--jc-primary);
+  outline-offset: 2px;
+}
+
+.jc-position-bottom-right.jc-bubble-button { right: 24px; }
+.jc-position-bottom-left.jc-bubble-button { left: 24px; }
+
+/* ---- Chat Panel ---- */
+.jc-chat-panel {
+  position: fixed;
+  bottom: 96px;
+  width: 380px;
+  height: 520px;
+  max-height: 80vh;
+  background: var(--jc-surface);
+  border-radius: var(--jc-border-radius);
+  box-shadow: 0 8px 32px var(--jc-shadow);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 2147483647;
+  animation: jc-panel-open 200ms ease-out;
+}
+
+.jc-position-bottom-right.jc-chat-panel { right: 24px; }
+.jc-position-bottom-left.jc-chat-panel { left: 24px; }
+
+/* ---- Header ---- */
+.jc-header {
+  height: 48px;
+  min-height: 48px;
+  background: var(--jc-primary);
+  color: var(--jc-on-primary);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+}
+
+.jc-header-title {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.jc-header-close {
+  background: none;
+  border: none;
+  color: var(--jc-on-primary);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.jc-header-close:hover {
+  opacity: 0.8;
+}
+
+.jc-header-close:focus-visible {
+  outline: 2px solid var(--jc-on-primary);
+  outline-offset: 2px;
+}
+
+/* Show/hide close icons based on screen size */
+.jc-close-icon-mobile { display: none; }
+.jc-close-icon-desktop { display: block; }
+
+/* ---- Message List ---- */
+.jc-message-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  position: relative;
+  scroll-behavior: smooth;
+}
+
+.jc-message {
+  margin-bottom: 8px;
+  display: flex;
+  animation: jc-message-appear 150ms ease-out;
+}
+
+.jc-message-user {
+  justify-content: flex-end;
+}
+
+.jc-message-bot {
+  justify-content: flex-start;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* ---- Bubbles ---- */
+.jc-bubble {
+  padding: 10px 14px;
+  font-size: 14px;
+  line-height: 1.5;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.jc-bubble-user {
+  background: var(--jc-primary);
+  color: var(--jc-on-primary);
+  border-radius: 16px 16px 4px 16px;
+  max-width: 80%;
+}
+
+.jc-bubble-bot {
+  background: var(--jc-surface-secondary);
+  color: var(--jc-text);
+  border-radius: 16px 16px 16px 4px;
+  max-width: 85%;
+}
+
+/* ---- Markdown Content ---- */
+.jc-markdown-content p {
+  margin: 0 0 8px 0;
+}
+
+.jc-markdown-content p:last-child {
+  margin-bottom: 0;
+}
+
+.jc-markdown-content strong {
+  font-weight: 600;
+}
+
+.jc-markdown-content em {
+  font-style: italic;
+}
+
+.jc-markdown-content .jc-inline-code {
+  background: #E5E7EB;
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-family: "SF Mono", "Fira Code", "Fira Mono", Menlo, Consolas, "DejaVu Sans Mono", monospace;
+  font-size: 13px;
+}
+
+.jc-markdown-content .jc-code-block {
+  background: #1F2937;
+  color: #F9FAFB;
+  padding: 12px;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 8px 0;
+  font-family: "SF Mono", "Fira Code", "Fira Mono", Menlo, Consolas, "DejaVu Sans Mono", monospace;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.jc-markdown-content .jc-code-block code {
+  background: none;
+  padding: 0;
+  font-size: inherit;
+  font-family: inherit;
+}
+
+.jc-markdown-content .jc-link {
+  color: var(--jc-primary);
+  text-decoration: underline;
+}
+
+.jc-markdown-content .jc-link:hover {
+  opacity: 0.8;
+}
+
+.jc-markdown-content .jc-list {
+  margin: 4px 0 8px 0;
+  padding-left: 20px;
+}
+
+.jc-markdown-content .jc-list li {
+  margin-bottom: 2px;
+}
+
+.jc-markdown-content .jc-blockquote {
+  border-left: 3px solid var(--jc-primary);
+  padding-left: 12px;
+  color: var(--jc-text-secondary);
+  margin: 8px 0;
+}
+
+/* ---- Typing Indicator ---- */
+.jc-typing-indicator {
+  display: flex;
+  gap: 4px;
+  padding: 10px 14px;
+  align-items: center;
+}
+
+.jc-typing-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--jc-primary);
+  opacity: 0.6;
+  animation: jc-typing-bounce 400ms ease-in-out infinite;
+}
+
+.jc-typing-dot:nth-child(2) {
+  animation-delay: 100ms;
+}
+
+.jc-typing-dot:nth-child(3) {
+  animation-delay: 200ms;
+}
+
+/* ---- Error Message ---- */
+.jc-error-message {
+  background: var(--jc-error-light);
+  padding: 10px 14px;
+  margin: 0 16px 8px;
+  border-radius: 8px;
+  animation: jc-message-appear 200ms ease-out;
+}
+
+.jc-error-text {
+  color: #991B1B;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.jc-error-retry {
+  background: none;
+  border: 1px solid #991B1B;
+  color: #991B1B;
+  padding: 4px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  min-height: 44px;
+}
+
+.jc-error-retry:hover {
+  background: rgba(153, 27, 27, 0.05);
+}
+
+/* ---- Input Bar ---- */
+.jc-input-bar {
+  display: flex;
+  align-items: flex-end;
+  padding: 8px 12px;
+  border-top: 1px solid var(--jc-border);
+  min-height: 56px;
+  gap: 8px;
+}
+
+.jc-input-textarea {
+  flex: 1;
+  border: 1px solid var(--jc-border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-family: inherit;
+  line-height: 1.4;
+  resize: none;
+  outline: none;
+  background: var(--jc-surface);
+  color: var(--jc-text);
+  max-height: 120px;
+}
+
+.jc-input-textarea::placeholder {
+  color: var(--jc-text-secondary);
+}
+
+.jc-input-textarea:focus {
+  border-color: var(--jc-primary);
+}
+
+.jc-send-button {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  border-radius: 8px;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+
+.jc-send-active {
+  background: var(--jc-primary);
+  color: var(--jc-on-primary);
+}
+
+.jc-send-active:hover {
+  background: var(--jc-primary-hover);
+}
+
+.jc-send-disabled {
+  background: var(--jc-surface-secondary);
+  color: var(--jc-text-secondary);
+  cursor: default;
+}
+
+.jc-send-stop {
+  background: var(--jc-primary);
+  color: var(--jc-on-primary);
+}
+
+.jc-send-button:focus-visible {
+  outline: 2px solid var(--jc-primary);
+  outline-offset: 2px;
+}
+
+/* ---- Feedback Buttons ---- */
+.jc-feedback-buttons {
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
+  padding-left: 4px;
+}
+
+.jc-feedback-btn {
+  background: none;
+  border: none;
+  color: var(--jc-text-secondary);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.5;
+  transition: opacity 150ms ease;
+}
+
+.jc-feedback-btn:hover {
+  opacity: 1;
+}
+
+.jc-feedback-active {
+  opacity: 1;
+  color: var(--jc-primary);
+}
+
+/* ---- Scroll to Bottom ---- */
+.jc-scroll-bottom {
+  position: sticky;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--jc-surface);
+  color: var(--jc-text);
+  border: 1px solid var(--jc-border);
+  border-radius: 16px;
+  padding: 4px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  animation: jc-fade-in 150ms ease-out;
+  z-index: 1;
+}
+
+.jc-scroll-bottom:hover {
+  background: var(--jc-surface-secondary);
+}
+
+/* ---- Animations ---- */
+@keyframes jc-panel-open {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes jc-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes jc-message-appear {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes jc-typing-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+/* ---- Reduced Motion ---- */
+@media (prefers-reduced-motion: reduce) {
+  .jc-bubble-button,
+  .jc-chat-panel,
+  .jc-message,
+  .jc-error-message,
+  .jc-scroll-bottom {
+    animation: none;
+  }
+
+  .jc-bubble-button {
+    transition: none;
+  }
+
+  .jc-typing-dot {
+    animation: none;
+  }
+
+  .jc-send-button {
+    transition: none;
+  }
+}
+
+/* ---- Mobile (below 640px) ---- */
+@media (max-width: 639px) {
+  .jc-bubble-button {
+    width: 48px;
+    height: 48px;
+  }
+
+  .jc-chat-panel {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100vw;
+    height: 100vh;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+
+  .jc-position-bottom-right.jc-chat-panel,
+  .jc-position-bottom-left.jc-chat-panel {
+    right: 0;
+    left: 0;
+  }
+
+  .jc-close-icon-desktop { display: none; }
+  .jc-close-icon-mobile { display: block; }
+}
