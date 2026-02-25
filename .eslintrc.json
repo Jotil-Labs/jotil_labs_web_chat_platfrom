@@ -9,5 +9,13 @@
     "no-console": "warn",
     "@typescript-eslint/no-explicit-any": "error"
   },
+  "overrides": [
+    {
+      "files": ["widget/**/*.tsx"],
+      "rules": {
+        "@next/next/no-img-element": "off"
+      }
+    }
+  ],
   "ignorePatterns": ["widget/build/", ".next/", "node_modules/"]
 }

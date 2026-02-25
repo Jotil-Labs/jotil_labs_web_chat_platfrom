@@ -75,6 +75,30 @@
 .jc-position-bottom-right.jc-bubble-button { right: 24px; }
 .jc-position-bottom-left.jc-bubble-button { left: 24px; }
 
+/* ---- Bubble Glow Effect ---- */
+@keyframes jc-glow-pulse {
+  0%, 100% {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 0 0 0 var(--jc-primary-light);
+  }
+  50% {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 0 0 8px var(--jc-primary-light);
+  }
+}
+
+.jc-bubble-glow {
+  animation: jc-glow-pulse 2s ease-in-out infinite;
+}
+
+/* ---- Bubble Custom Icon ---- */
+.jc-bubble-icon-img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  border-radius: 4px;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+
 /* ---- Chat Panel ---- */
 .jc-chat-panel {
   position: fixed;
@@ -95,6 +119,72 @@
 .jc-position-bottom-right.jc-chat-panel { right: 24px; }
 .jc-position-bottom-left.jc-chat-panel { left: 24px; }
 
+/* ---- Greeting Tooltip ---- */
+.jc-greeting-tooltip {
+  position: fixed;
+  bottom: 92px;
+  max-width: 240px;
+  background: var(--jc-surface);
+  color: var(--jc-text);
+  padding: 10px 32px 10px 14px;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px var(--jc-shadow);
+  font-size: 13px;
+  line-height: 1.45;
+  cursor: pointer;
+  animation: jc-tooltip-appear 300ms ease-out;
+  z-index: 2147483646;
+}
+
+.jc-position-bottom-right.jc-greeting-tooltip { right: 24px; }
+.jc-position-bottom-left.jc-greeting-tooltip { left: 24px; }
+
+/* Arrow pointing down toward bubble */
+.jc-greeting-tooltip::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  width: 12px;
+  height: 12px;
+  background: var(--jc-surface);
+  transform: rotate(45deg);
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.06);
+}
+
+.jc-position-bottom-right.jc-greeting-tooltip::after { right: 28px; }
+.jc-position-bottom-left.jc-greeting-tooltip::after { left: 28px; }
+
+.jc-greeting-close {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: none;
+  border: none;
+  color: var(--jc-text-secondary);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  line-height: 1;
+}
+
+.jc-greeting-close:hover {
+  color: var(--jc-text);
+}
+
+@keyframes jc-tooltip-appear {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* ---- Header ---- */
 .jc-header {
   height: 48px;
@@ -105,6 +195,22 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 16px;
+  gap: 8px;
+}
+
+.jc-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.jc-header-logo {
+  height: 28px;
+  width: auto;
+  max-width: 120px;
+  object-fit: contain;
+  flex-shrink: 0;
 }
 
 .jc-header-title {
@@ -474,7 +580,12 @@
   .jc-chat-panel,
   .jc-message,
   .jc-error-message,
-  .jc-scroll-bottom {
+  .jc-scroll-bottom,
+  .jc-greeting-tooltip {
+    animation: none;
+  }
+
+  .jc-bubble-glow {
     animation: none;
   }
 
@@ -514,6 +625,11 @@
   .jc-position-bottom-left.jc-chat-panel {
     right: 0;
     left: 0;
+  }
+
+  .jc-greeting-tooltip {
+    bottom: 80px;
+    max-width: 200px;
   }
 
   .jc-close-icon-desktop { display: none; }

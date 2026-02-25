@@ -15,6 +15,10 @@ export interface Client {
   border_radius: number;
   position: Position;
   document_context: string | null;
+  bubble_icon_url: string | null;
+  logo_url: string | null;
+  greeting_message: string | null;
+  glow_effect: boolean;
   plan: Plan;
   message_limit: number;
   messages_used: number;
@@ -49,6 +53,10 @@ export interface WidgetConfig {
   primaryColor: string;
   borderRadius: number;
   position: Position;
+  bubbleIconUrl: string | null;
+  logoUrl: string | null;
+  greetingMessage: string | null;
+  glowEffect: boolean;
 }
 
 export interface ChatRequest {

@@ -49,6 +49,10 @@ export async function GET(req: Request) {
     primaryColor: client.primary_color,
     borderRadius: client.border_radius,
     position: client.position,
+    bubbleIconUrl: client.bubble_icon_url ?? null,
+    logoUrl: client.logo_url ?? null,
+    greetingMessage: client.greeting_message ?? null,
+    glowEffect: client.glow_effect,
   };
 
   return new Response(JSON.stringify(config), {

@@ -4,6 +4,7 @@ import { useConfig } from './hooks/useConfig';
 import { useChat } from './hooks/useChat';
 import { BubbleButton } from './components/BubbleButton';
 import { ChatPanel } from './components/ChatPanel';
+import { GreetingTooltip } from './components/GreetingTooltip';
 
 interface AppProps {
   clientId: string;
@@ -84,10 +85,21 @@ export const App: FunctionalComponent<AppProps> = ({
   return (
     <>
       {!isOpen && (
-        <BubbleButton
-          onClick={handleToggle}
-          position={config.position}
-        />
+        <>
+          <BubbleButton
+            onClick={handleToggle}
+            position={config.position}
+            glowEffect={config.glowEffect}
+            iconUrl={config.bubbleIconUrl}
+          />
+          {config.greetingMessage && (
+            <GreetingTooltip
+              message={config.greetingMessage}
+              position={config.position}
+              onOpen={handleOpen}
+            />
+          )}
+        </>
       )}
       <ChatPanel
         isOpen={isOpen}
@@ -97,6 +109,7 @@ export const App: FunctionalComponent<AppProps> = ({
         messages={messages}
         isStreaming={isStreaming}
         error={error}
+        logoUrl={config.logoUrl}
         onClose={handleClose}
         onSend={sendMessage}
         onCancel={cancelStream}

@@ -1,5 +1,5 @@
 import type { FunctionalComponent } from 'preact';
-import { useRef, useEffect, useCallback } from 'preact/hooks';
+import { useRef, useEffect, useCallback, useState } from 'preact/hooks';
 import { MessageList } from './MessageList';
 import { InputBar } from './InputBar';
 import { ErrorMessage } from './ErrorMessage';
@@ -13,6 +13,7 @@ interface ChatPanelProps {
   messages: ChatMessageUI[];
   isStreaming: boolean;
   error: string | null;
+  logoUrl?: string | null;
   onClose: () => void;
   onSend: (text: string) => void;
   onCancel: () => void;
@@ -28,12 +29,14 @@ export const ChatPanel: FunctionalComponent<ChatPanelProps> = ({
   messages,
   isStreaming,
   error,
+  logoUrl,
   onClose,
   onSend,
   onCancel,
   onRetry,
   onFeedback,
 }) => {
+  const [logoError, setLogoError] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const inputElRef = useRef<HTMLTextAreaElement | null>(null);
 
@@ -90,7 +93,17 @@ export const ChatPanel: FunctionalComponent<ChatPanelProps> = ({
     >
       {/* Header */}
       <div class="jc-header">
-        <span class="jc-header-title">{botName}</span>
+        <div class="jc-header-left">
+          {logoUrl && !logoError && (
+            <img
+              class="jc-header-logo"
+              src={logoUrl}
+              alt=""
+              onError={() => setLogoError(true)}
+            />
+          )}
+          <span class="jc-header-title">{botName}</span>
+        </div>
         <button
           class="jc-header-close"
           onClick={onClose}

@@ -1,7 +1,7 @@
 -- Seed data for local development
 
 -- Test client: Test Coffee Shop
-insert into clients (id, name, domain, bot_name, welcome_message, system_prompt, ai_model, primary_color, border_radius, position, document_context, plan, message_limit, messages_used, active)
+insert into clients (id, name, domain, bot_name, welcome_message, system_prompt, ai_model, primary_color, border_radius, position, document_context, plan, message_limit, messages_used, active, bubble_icon_url, logo_url, greeting_message, glow_effect)
 values (
   '00000000-0000-0000-0000-000000000001',
   'Test Coffee Shop',
@@ -40,6 +40,10 @@ Tone: Warm and friendly, like a neighborhood barista.',
   'starter',
   2000,
   42,
+  true,
+  null,
+  null,
+  'Hi there! Need help finding the perfect coffee?',
   true
 );
 

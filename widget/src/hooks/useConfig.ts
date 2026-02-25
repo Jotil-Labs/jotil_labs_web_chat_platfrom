@@ -7,6 +7,10 @@ export interface WidgetConfig {
   primaryColor: string;
   borderRadius: number;
   position: 'bottom-right' | 'bottom-left';
+  bubbleIconUrl: string | null;
+  logoUrl: string | null;
+  greetingMessage: string | null;
+  glowEffect: boolean;
 }
 
 interface UseConfigResult {
