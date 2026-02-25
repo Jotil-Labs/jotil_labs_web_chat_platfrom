@@ -3,6 +3,7 @@ import preact from '@preact/preset-vite';
 import { resolve } from 'path';
 
 export default defineConfig({
+  root: resolve(__dirname),
   plugins: [preact()],
   build: {
     lib: {

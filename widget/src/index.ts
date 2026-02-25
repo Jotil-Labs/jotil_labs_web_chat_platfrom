@@ -22,16 +22,16 @@ function init() {
   // Derive API base from script src URL
   let apiBase = '';
   const src = script.getAttribute('src');
-  if (src) {
+  if (src && src.startsWith('http')) {
     try {
-      const url = new URL(src, window.location.href);
+      const url = new URL(src);
       apiBase = url.origin;
     } catch {
       apiBase = window.location.origin;
     }
   } else {
-    // Dev mode — script is inline
-    apiBase = window.location.origin;
+    // Dev mode — Vite serves widget, Next.js serves API on port 3000
+    apiBase = import.meta.env.DEV ? 'http://localhost:3000' : window.location.origin;
   }
 
   // Create container

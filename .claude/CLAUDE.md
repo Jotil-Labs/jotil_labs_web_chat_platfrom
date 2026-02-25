@@ -147,3 +147,7 @@ Refer to `docs/` for detailed specs:
 - Rate limiting is in-memory — resets on deploy, no cross-instance state. Fine for 10-15 clients.
 - Widget's markdown renderer returns a DOM DocumentFragment (not HTML string) to avoid innerHTML.
 - `prefers-reduced-motion` must be respected — replace all animations with instant state changes.
+
+## Auto-Commit
+
+Always commit after completing a task or a logical unit of work. Use conventional commit messages (`feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`, `style:`). Do not wait for the user to ask — commit proactively when the work is done and tests/typecheck pass.
