@@ -6,7 +6,6 @@ import {
 import { getActiveClient, createConversation, saveMessage, updateConversationTimestamp, incrementUsage } from '@/lib/db/queries';
 import { buildSystemPrompt } from '@/lib/ai/prompts';
 import { streamChatResponse } from '@/lib/ai/providers';
-import { createMockStreamResponse } from '@/lib/ai/mock';
 import { corsHeaders, corsResponse } from '@/lib/utils/cors';
 import type { ClientConfig, ChatMessage } from '@/types';
 
@@ -112,22 +111,6 @@ export async function POST(req: Request) {
       { role: 'user', content: message },
     ];
 
-    // Mock mode
-    if (process.env.MOCK_AI === 'true') {
-      const { response: mockResponse, text: mockText } = createMockStreamResponse(message);
-      const mockHeaders = new Headers(mockResponse.headers);
-      Object.entries(headers).forEach(([k, v]) => mockHeaders.set(k, v));
-      mockHeaders.set('X-Conversation-Id', activeConversationId);
-
-      // Persist messages in background
-      persistMessages(activeConversationId, message, mockText, client.ai_model, clientId);
-
-      return new Response(mockResponse.body, {
-        status: 200,
-        headers: mockHeaders,
-      });
-    }
-
     // Stream AI response
     const result = streamChatResponse(
       client.ai_model,
@@ -177,32 +160,5 @@ export async function POST(req: Request) {
         headers: { ...headers, 'Content-Type': 'application/json' },
       }
     );
-  }
-}
-
-async function persistMessages(
-  conversationId: string,
-  userMessage: string,
-  assistantText: string,
-  model: string,
-  clientId: string
-) {
-  try {
-    await saveMessage({
-      conversationId,
-      role: 'user',
-      content: userMessage,
-    });
-    await saveMessage({
-      conversationId,
-      role: 'assistant',
-      content: assistantText,
-      modelUsed: model,
-      tokensUsed: 85,
-    });
-    await updateConversationTimestamp(conversationId);
-    await incrementUsage(clientId);
-  } catch {
-    // Silently fail persistence in mock mode
   }
 }

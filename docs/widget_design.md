@@ -48,10 +48,6 @@ When running locally (`npm run widget:dev`), the widget dev server automatically
 
 - Client ID: `00000000-0000-0000-0000-000000000001` (seed test client)
 - Domain validation: `localhost` is accepted
-- If the environment variable `MOCK_AI=true` is set, the `/api/chat` endpoint returns a canned streaming response instead of calling a real AI provider. This allows testing the full widget flow (streaming, typing indicator, message rendering, auto-scroll) without spending API tokens.
-
-The mock response should simulate realistic token-by-token streaming with slight delays between tokens to test the rendering pipeline under real conditions.
-
 ---
 
 ## 2. Widget States

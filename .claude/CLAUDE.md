@@ -113,7 +113,6 @@ Inline error messages (light red `#FEF2F2` background, retry button). Never cras
 - Vitest as test runner
 - Test files colocated: `[filename].test.ts`
 - Test client ID: `00000000-0000-0000-0000-000000000001` (domain: `localhost`)
-- `MOCK_AI=true` env var returns canned streaming response without calling real AI providers (dev only)
 
 ## Git Conventions
 
