@@ -98,6 +98,30 @@ describe('renderMarkdown', () => {
     expect(result).toContain('<strong>');
   });
 
+  it('renders headings', () => {
+    const result = fragmentToText(renderMarkdown('## Our Menu'));
+    expect(result).toContain('<h2');
+    expect(result).toContain('Our Menu');
+  });
+
+  it('renders tables', () => {
+    const result = fragmentToText(
+      renderMarkdown('| Item | Price |\n|------|-------|\n| Coffee | $3.00 |\n| Latte | $5.50 |')
+    );
+    expect(result).toContain('<table');
+    expect(result).toContain('<th');
+    expect(result).toContain('Item');
+    expect(result).toContain('Price');
+    expect(result).toContain('<td');
+    expect(result).toContain('Coffee');
+    expect(result).toContain('$3.00');
+  });
+
+  it('renders horizontal rules', () => {
+    const result = fragmentToText(renderMarkdown('Above\n---\nBelow'));
+    expect(result).toContain('<hr');
+  });
+
   it('does not render HTML tags', () => {
     const result = fragmentToText(
       renderMarkdown('<script>alert("xss")</script>Hello')

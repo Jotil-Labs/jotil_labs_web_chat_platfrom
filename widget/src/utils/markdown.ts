@@ -31,6 +31,59 @@ export function renderMarkdown(text: string): DocumentFragment {
       continue;
     }
 
+    // Heading (## or ###)
+    const headingMatch = line.match(/^(#{1,3})\s+(.+)$/);
+    if (headingMatch) {
+      const level = headingMatch[1].length as 1 | 2 | 3;
+      const tag = `h${level}` as 'h1' | 'h2' | 'h3';
+      const heading = document.createElement(tag);
+      heading.className = `jc-heading jc-heading-${level}`;
+      appendInlineContent(heading, headingMatch[2]);
+      fragment.appendChild(heading);
+      i++;
+      continue;
+    }
+
+    // Table (detect header row with pipe separators)
+    if (line.includes('|') && i + 1 < lines.length && /^\|?\s*[-:]+[-|:\s]+$/.test(lines[i + 1])) {
+      const table = document.createElement('table');
+      table.className = 'jc-table';
+
+      // Header row
+      const thead = document.createElement('thead');
+      const headerRow = document.createElement('tr');
+      const headerCells = parsePipeRow(lines[i]);
+      for (const cell of headerCells) {
+        const th = document.createElement('th');
+        appendInlineContent(th, cell.trim());
+        headerRow.appendChild(th);
+      }
+      thead.appendChild(headerRow);
+      table.appendChild(thead);
+      i += 2; // skip header + separator
+
+      // Body rows
+      const tbody = document.createElement('tbody');
+      while (i < lines.length && lines[i].includes('|')) {
+        const bodyRow = document.createElement('tr');
+        const bodyCells = parsePipeRow(lines[i]);
+        for (const cell of bodyCells) {
+          const td = document.createElement('td');
+          appendInlineContent(td, cell.trim());
+          bodyRow.appendChild(td);
+        }
+        tbody.appendChild(bodyRow);
+        i++;
+      }
+      table.appendChild(tbody);
+
+      const wrapper = document.createElement('div');
+      wrapper.className = 'jc-table-wrapper';
+      wrapper.appendChild(table);
+      fragment.appendChild(wrapper);
+      continue;
+    }
+
     // Blockquote
     if (line.startsWith('> ')) {
       const blockquote = document.createElement('blockquote');
@@ -70,6 +123,15 @@ export function renderMarkdown(text: string): DocumentFragment {
         i++;
       }
       fragment.appendChild(ol);
+      continue;
+    }
+
+    // Horizontal rule
+    if (/^[-*_]{3,}\s*$/.test(line)) {
+      const hr = document.createElement('hr');
+      hr.className = 'jc-hr';
+      fragment.appendChild(hr);
+      i++;
       continue;
     }
 
@@ -146,6 +208,14 @@ function appendInlineContent(parent: HTMLElement, text: string): void {
   if (lastIndex < text.length) {
     parent.appendChild(document.createTextNode(text.slice(lastIndex)));
   }
+}
+
+function parsePipeRow(line: string): string[] {
+  // Strip leading/trailing pipes and split by |
+  let trimmed = line.trim();
+  if (trimmed.startsWith('|')) trimmed = trimmed.slice(1);
+  if (trimmed.endsWith('|')) trimmed = trimmed.slice(0, -1);
+  return trimmed.split('|');
 }
 
 function isValidUrl(url: string): boolean {
