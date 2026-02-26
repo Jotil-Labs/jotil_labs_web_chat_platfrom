@@ -8,14 +8,18 @@ interface MessageListProps {
   messages: ChatMessageUI[];
   welcomeMessage: string;
   isStreaming: boolean;
+  starterQuestions?: string[] | null;
   onFeedback: (messageId: string, feedback: 'positive' | 'negative') => void;
+  onStarterClick?: (text: string) => void;
 }
 
 export const MessageList: FunctionalComponent<MessageListProps> = ({
   messages,
   welcomeMessage,
   isStreaming,
+  starterQuestions,
   onFeedback,
+  onStarterClick,
 }) => {
   const listRef = useRef<HTMLDivElement>(null);
   const [showScrollButton, setShowScrollButton] = useState(false);
@@ -78,6 +82,24 @@ export const MessageList: FunctionalComponent<MessageListProps> = ({
           <span>{welcomeMessage}</span>
         </div>
       </div>
+
+      {/* Starter questions — shown only before first user message */}
+      {starterQuestions &&
+        starterQuestions.length > 0 &&
+        messages.length === 0 && (
+          <div class="jc-starter-questions">
+            {starterQuestions.map((q) => (
+              <button
+                key={q}
+                type="button"
+                class="jc-starter-chip"
+                onClick={() => onStarterClick?.(q)}
+              >
+                {q}
+              </button>
+            ))}
+          </div>
+        )}
 
       {/* Messages */}
       {messages.map((msg) => (

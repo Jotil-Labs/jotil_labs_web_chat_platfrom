@@ -110,6 +110,7 @@ export const App: FunctionalComponent<AppProps> = ({
         isStreaming={isStreaming}
         error={error}
         logoUrl={config.logoUrl}
+        starterQuestions={config.starterQuestions}
         onClose={handleClose}
         onSend={sendMessage}
         onCancel={cancelStream}

@@ -11,6 +11,7 @@ export interface WidgetConfig {
   logoUrl: string | null;
   greetingMessage: string | null;
   glowEffect: boolean;
+  starterQuestions: string[] | null;
 }
 
 interface UseConfigResult {

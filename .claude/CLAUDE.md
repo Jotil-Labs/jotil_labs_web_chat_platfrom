@@ -41,7 +41,7 @@ widget/src/utils/contrast.ts    — Auto-contrast color logic
 
 ### Database Schema (Supabase PostgreSQL)
 
-Three tables: `clients` (config, plan, usage limits, active flag), `conversations` (client_id, visitor_id, timestamps), `messages` (conversation_id, role, content, model_used, tokens_used, feedback). Full schema in `docs/technical_architecture.md`.
+Three tables: `clients` (config, plan, usage limits, active flag, starter_questions JSONB), `conversations` (client_id, visitor_id, timestamps), `messages` (conversation_id, role, content, model_used, tokens_used, feedback). Full schema in `docs/technical_architecture.md`.
 
 ## Commands
 
@@ -79,7 +79,7 @@ The chat endpoint uses Edge runtime (`export const runtime = 'edge'`) for lower 
 ### Vercel AI SDK Usage
 - Import `streamText`, `generateText`, `generateObject` from `ai` package
 - Use provider/model strings: `"openai/gpt-5-nano"`, `"anthropic/claude-haiku-4-5"`, `"google/gemini-2.0-flash"`
-- Return `result.toUIMessageStreamResponse()` from streaming routes
+- Return `result.toUIMessageStreamResponse({ onFinish, onError })` from streaming routes — `onFinish` persists messages, `onError` returns user-facing error string
 - Never import AI provider SDKs directly — the Vercel AI SDK wraps all of them
 - API keys are server-side Vercel env vars only, never referenced in widget code
 - Adding a new model = update `src/lib/ai/models.ts` only
@@ -103,7 +103,8 @@ Named exports everywhere, except Next.js page/route files (default exports requi
 ### API Routes
 - App Router pattern: `export async function POST(req: Request)`
 - Always validate `clientId`, check client is active, check Origin against registered domain
-- Error codes: 400 (bad input), 403 (inactive client/wrong origin), 404 (unknown client), 429 (rate limited), 502 (AI provider error with generic message to client)
+- Error codes: 400 (bad input), 403 (inactive client/wrong origin), 404 (unknown client), 429 (rate limited / AI provider throttled), 502 (AI provider error with generic message to client)
+- AI SDK error types (`APICallError`, `RetryError`, `LoadAPIKeyError`) are caught and mapped to specific user-facing messages — never expose internal error details
 
 ### Widget Error Handling
 Inline error messages (light red `#FEF2F2` background, retry button). Never crash the widget or show blank screen.

@@ -41,6 +41,10 @@ Send the client the intake form below (email, Google Form, or however you prefer
 - Primary brand color (hex code, e.g., #2563EB). If the client does not know their hex code, ask for their website URL and pull the primary color from there.
 - Widget position: bottom-right (default) or bottom-left
 
+**Starter Questions (optional but recommended)**
+
+- 2-3 suggested questions that appear as clickable chips when a visitor opens the chat (e.g., "What services do you offer?", "How do I book an appointment?"). These help visitors start the conversation. If the client does not provide them, leave blank.
+
 **Content (optional but recommended)**
 
 - FAQ list: common questions visitors ask and the answers the client wants the bot to give
@@ -112,6 +116,7 @@ Open the Supabase dashboard and insert a new row in the `clients` table.
 | border_radius | 12 (default). Adjust if the client's site uses a different design language. |
 | position | "bottom-right" or "bottom-left" |
 | document_context | Cleaned reference content from Step 3, or null if none provided |
+| starter_questions | JSON array of 2-3 suggested questions, e.g., `["What services do you offer?", "What are your hours?"]`, or null |
 | plan | "starter", "pro", "agency", or "enterprise" |
 | message_limit | 2000, 10000, 50000, or 200000 based on plan |
 | messages_used | 0 |

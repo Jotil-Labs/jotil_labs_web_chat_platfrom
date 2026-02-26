@@ -23,6 +23,7 @@ export interface Client {
   position: Position;
   document_context: string | null;
   customization: ClientCustomization;
+  starter_questions: string[] | null;
   plan: Plan;
   message_limit: number;
   messages_used: number;
@@ -61,6 +62,7 @@ export interface WidgetConfig {
   logoUrl: string | null;
   greetingMessage: string | null;
   glowEffect: boolean;
+  starterQuestions: string[] | null;
 }
 
 export interface ChatRequest {

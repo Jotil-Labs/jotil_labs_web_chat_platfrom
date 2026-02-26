@@ -54,6 +54,7 @@ export async function GET(req: Request) {
     logoUrl: c.logoUrl ?? null,
     greetingMessage: c.greetingMessage ?? null,
     glowEffect: c.glowEffect ?? false,
+    starterQuestions: client.starter_questions ?? null,
   };
 
   return new Response(JSON.stringify(config), {

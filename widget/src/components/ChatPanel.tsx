@@ -14,6 +14,7 @@ interface ChatPanelProps {
   isStreaming: boolean;
   error: string | null;
   logoUrl?: string | null;
+  starterQuestions?: string[] | null;
   onClose: () => void;
   onSend: (text: string) => void;
   onCancel: () => void;
@@ -30,6 +31,7 @@ export const ChatPanel: FunctionalComponent<ChatPanelProps> = ({
   isStreaming,
   error,
   logoUrl,
+  starterQuestions,
   onClose,
   onSend,
   onCancel,
@@ -138,7 +140,9 @@ export const ChatPanel: FunctionalComponent<ChatPanelProps> = ({
         messages={messages}
         welcomeMessage={welcomeMessage}
         isStreaming={isStreaming}
+        starterQuestions={starterQuestions}
         onFeedback={onFeedback}
+        onStarterClick={onSend}
       />
 
       {/* Error */}

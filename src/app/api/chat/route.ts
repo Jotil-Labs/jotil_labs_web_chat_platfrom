@@ -1,3 +1,4 @@
+import { APICallError, RetryError, LoadAPIKeyError } from 'ai';
 import { validateChatRequest, isValidOrigin } from '@/lib/utils/validation';
 import {
   checkVisitorRateLimit,
@@ -118,29 +119,40 @@ export async function POST(req: Request) {
       messages
     );
 
-    const response = result.toUIMessageStreamResponse();
-
-    // Persist messages after stream completes
-    result.text.then(async (fullText) => {
-      const usage = await result.usage;
-      try {
-        await saveMessage({
-          conversationId: activeConversationId!,
-          role: 'user',
-          content: message,
-        });
-        await saveMessage({
-          conversationId: activeConversationId!,
-          role: 'assistant',
-          content: fullText,
-          modelUsed: client.ai_model,
-          tokensUsed: usage?.totalTokens,
-        });
-        await updateConversationTimestamp(activeConversationId!);
-        await incrementUsage(clientId);
-      } catch {
-        // Log but don't fail the stream
-      }
+    const response = result.toUIMessageStreamResponse({
+      onFinish: async () => {
+        try {
+          const [fullText, usage] = await Promise.all([
+            result.text,
+            result.usage,
+          ]);
+          await saveMessage({
+            conversationId: activeConversationId!,
+            role: 'user',
+            content: message,
+          });
+          await saveMessage({
+            conversationId: activeConversationId!,
+            role: 'assistant',
+            content: fullText,
+            modelUsed: client.ai_model,
+            tokensUsed: usage?.totalTokens,
+          });
+          await updateConversationTimestamp(activeConversationId!);
+          await incrementUsage(clientId);
+        } catch (err) {
+          // eslint-disable-next-line no-console
+          console.error('[chat] Failed to persist messages:', err);
+        }
+      },
+      onError: (error) => {
+        // eslint-disable-next-line no-console
+        console.error('[chat] Stream error:', error);
+        if (error instanceof APICallError && error.statusCode === 429) {
+          return 'The AI service is busy. Please try again in a moment.';
+        }
+        return 'Something went wrong. Please try again.';
+      },
     });
 
     // Add CORS and conversation ID headers
@@ -152,9 +164,48 @@ export async function POST(req: Request) {
       status: 200,
       headers: responseHeaders,
     });
-  } catch {
+  } catch (error) {
+    // SDK-specific error handling
+    if (error instanceof APICallError) {
+      const status = error.statusCode === 429 ? 429 : 502;
+      const msg =
+        error.statusCode === 429
+          ? 'The AI service is busy. Please try again in a moment.'
+          : 'A service error occurred. Please try again.';
+      return new Response(JSON.stringify({ error: msg }), {
+        status,
+        headers: { ...headers, 'Content-Type': 'application/json' },
+      });
+    }
+
+    if (error instanceof RetryError) {
+      return new Response(
+        JSON.stringify({
+          error: 'The AI service is temporarily unavailable. Please try again.',
+        }),
+        {
+          status: 502,
+          headers: { ...headers, 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
+    if (error instanceof LoadAPIKeyError) {
+      // eslint-disable-next-line no-console
+      console.error('[chat] Missing API key:', error.message);
+      return new Response(
+        JSON.stringify({
+          error: 'Service configuration error. Please try again later.',
+        }),
+        {
+          status: 502,
+          headers: { ...headers, 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
     return new Response(
-      JSON.stringify({ error: 'An unexpected error occurred' }),
+      JSON.stringify({ error: 'Something went wrong. Please try again.' }),
       {
         status: 502,
         headers: { ...headers, 'Content-Type': 'application/json' },
