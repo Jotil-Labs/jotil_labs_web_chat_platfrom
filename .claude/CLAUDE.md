@@ -25,7 +25,7 @@ src/app/api/config/route.ts     — Widget configuration endpoint
 src/app/api/feedback/route.ts   — Message feedback (thumbs up/down)
 src/app/api/conversations/route.ts — Conversation history
 src/lib/ai/providers.ts         — streamText wrapper
-src/lib/ai/prompts.ts           — System prompt builder (buildSystemPrompt)
+src/lib/ai/prompts.ts           — System prompt builder (passes DB prompt through, appends document_context)
 src/lib/ai/models.ts            — Model registry (provider strings, plan access)
 src/lib/db/supabase.ts          — Supabase client (service role, server-side only)
 src/lib/db/queries.ts           — All database queries (no inline Supabase queries elsewhere)
