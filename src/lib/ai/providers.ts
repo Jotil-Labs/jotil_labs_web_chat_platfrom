@@ -23,7 +23,8 @@ export function resolveModel(modelId: string) {
 export function streamChatResponse(
   modelId: string,
   systemPrompt: string,
-  messages: ChatMessage[]
+  messages: ChatMessage[],
+  abortSignal?: AbortSignal
 ) {
   const model = resolveModel(modelId);
 
@@ -35,6 +36,8 @@ export function streamChatResponse(
       content: m.content,
     })),
     temperature: 0.7,
+    maxRetries: 2,
+    abortSignal: abortSignal ?? AbortSignal.timeout(30_000),
     experimental_transform: smoothStream({ chunking: 'word' }),
   });
 }

@@ -112,11 +112,12 @@ export async function POST(req: Request) {
       { role: 'user', content: message },
     ];
 
-    // Stream AI response
+    // Stream AI response (pass request signal so client disconnect cancels the AI call)
     const result = streamChatResponse(
       client.ai_model,
       systemPrompt,
-      messages
+      messages,
+      req.signal
     );
 
     const response = result.toUIMessageStreamResponse({
