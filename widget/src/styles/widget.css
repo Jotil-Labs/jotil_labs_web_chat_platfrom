@@ -218,7 +218,13 @@
   font-weight: 600;
 }
 
-.jc-header-close {
+.jc-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.jc-header-btn {
   background: none;
   border: none;
   color: var(--jc-on-primary);
@@ -232,11 +238,11 @@
   min-height: 44px;
 }
 
-.jc-header-close:hover {
+.jc-header-btn:hover {
   opacity: 0.8;
 }
 
-.jc-header-close:focus-visible {
+.jc-header-btn:focus-visible {
   outline: 2px solid var(--jc-on-primary);
   outline-offset: 2px;
 }
@@ -614,6 +620,26 @@
 
 .jc-scroll-bottom:hover {
   background: var(--jc-surface-secondary);
+}
+
+/* ---- Watermark ---- */
+.jc-watermark {
+  text-align: center;
+  padding: 4px 12px 6px;
+  font-size: 11px;
+  color: var(--jc-text-secondary);
+  opacity: 0.6;
+}
+
+.jc-watermark-link {
+  color: var(--jc-text-secondary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.jc-watermark-link:hover {
+  color: var(--jc-text);
+  text-decoration: underline;
 }
 
 /* ---- Animations ---- */

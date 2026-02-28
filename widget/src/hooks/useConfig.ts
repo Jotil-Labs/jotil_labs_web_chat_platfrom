@@ -12,6 +12,8 @@ export interface WidgetConfig {
   greetingMessage: string | null;
   glowEffect: boolean;
   starterQuestions: string[] | null;
+  showWatermark: boolean;
+  conversationExpiryHours: number | null;
 }
 
 interface UseConfigResult {

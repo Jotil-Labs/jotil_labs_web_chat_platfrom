@@ -35,6 +35,7 @@ export const App: FunctionalComponent<AppProps> = ({
     cancelStream,
     retry,
     loadHistory,
+    resetConversation,
     submitFeedback,
   } = useChat(apiBase, clientId);
 
@@ -42,9 +43,9 @@ export const App: FunctionalComponent<AppProps> = ({
     setIsOpen(true);
     if (!historyLoadedRef.current) {
       historyLoadedRef.current = true;
-      loadHistory();
+      loadHistory(config?.conversationExpiryHours);
     }
-  }, [loadHistory]);
+  }, [loadHistory, config?.conversationExpiryHours]);
 
   const handleClose = useCallback(() => {
     setIsOpen(false);
@@ -111,10 +112,12 @@ export const App: FunctionalComponent<AppProps> = ({
         error={error}
         logoUrl={config.logoUrl}
         starterQuestions={config.starterQuestions}
+        showWatermark={config.showWatermark}
         onClose={handleClose}
         onSend={sendMessage}
         onCancel={cancelStream}
         onRetry={retry}
+        onNewChat={resetConversation}
         onFeedback={submitFeedback}
       />
     </>

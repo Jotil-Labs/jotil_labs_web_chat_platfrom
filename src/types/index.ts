@@ -24,6 +24,8 @@ export interface Client {
   document_context: string | null;
   customization: ClientCustomization;
   starter_questions: string[] | null;
+  show_watermark: boolean;
+  conversation_expiry_hours: number | null;
   plan: Plan;
   message_limit: number;
   messages_used: number;
@@ -48,6 +50,8 @@ export interface Message {
   content: string;
   model_used: string | null;
   tokens_used: number | null;
+  prompt_tokens: number | null;
+  completion_tokens: number | null;
   feedback: Feedback | null;
   created_at: string;
 }
@@ -63,6 +67,8 @@ export interface WidgetConfig {
   greetingMessage: string | null;
   glowEffect: boolean;
   starterQuestions: string[] | null;
+  showWatermark: boolean;
+  conversationExpiryHours: number | null;
 }
 
 export interface ChatRequest {

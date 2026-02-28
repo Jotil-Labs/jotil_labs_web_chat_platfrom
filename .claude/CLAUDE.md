@@ -41,7 +41,7 @@ widget/src/utils/contrast.ts    — Auto-contrast color logic
 
 ### Database Schema (Supabase PostgreSQL)
 
-Three tables: `clients` (config, plan, usage limits, active flag, starter_questions JSONB), `conversations` (client_id, visitor_id, timestamps), `messages` (conversation_id, role, content, model_used, tokens_used, feedback). Full schema in `docs/technical_architecture.md`.
+Three tables: `clients` (config, plan, usage limits, active flag, starter_questions JSONB, show_watermark, conversation_expiry_hours), `conversations` (client_id, visitor_id, timestamps), `messages` (conversation_id, role, content, model_used, tokens_used, prompt_tokens, completion_tokens, feedback). Full schema in `docs/technical_architecture.md`.
 
 ## Commands
 

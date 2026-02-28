@@ -38,6 +38,10 @@ export function streamChatResponse(
     temperature: 0.7,
     maxRetries: 2,
     abortSignal: abortSignal ?? AbortSignal.timeout(30_000),
+    providerOptions: {
+      openai: { maxCompletionTokens: 1024 },
+      anthropic: { maxTokens: 1024 },
+    },
     experimental_transform: smoothStream({ chunking: 'word' }),
   });
 }

@@ -15,10 +15,12 @@ interface ChatPanelProps {
   error: string | null;
   logoUrl?: string | null;
   starterQuestions?: string[] | null;
+  showWatermark?: boolean;
   onClose: () => void;
   onSend: (text: string) => void;
   onCancel: () => void;
   onRetry: () => void;
+  onNewChat: () => void;
   onFeedback: (messageId: string, feedback: 'positive' | 'negative') => void;
 }
 
@@ -32,10 +34,12 @@ export const ChatPanel: FunctionalComponent<ChatPanelProps> = ({
   error,
   logoUrl,
   starterQuestions,
+  showWatermark,
   onClose,
   onSend,
   onCancel,
   onRetry,
+  onNewChat,
   onFeedback,
 }) => {
   const [logoError, setLogoError] = useState(false);
@@ -106,12 +110,27 @@ export const ChatPanel: FunctionalComponent<ChatPanelProps> = ({
           )}
           <span class="jc-header-title">{botName}</span>
         </div>
-        <button
-          class="jc-header-close"
-          onClick={onClose}
-          type="button"
-          aria-label="Close chat"
-        >
+        <div class="jc-header-actions">
+          {messages.length > 0 && (
+            <button
+              class="jc-header-btn"
+              onClick={onNewChat}
+              type="button"
+              aria-label="New conversation"
+              title="New conversation"
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
+                <path d="M13 3H3v8h3l2 2 2-2h3z"/>
+                <path d="M6 7h4M8 5v4"/>
+              </svg>
+            </button>
+          )}
+          <button
+            class="jc-header-btn"
+            onClick={onClose}
+            type="button"
+            aria-label="Close chat"
+          >
           <svg
             width="18"
             height="18"
@@ -132,7 +151,8 @@ export const ChatPanel: FunctionalComponent<ChatPanelProps> = ({
           >
             <path d="M15 8.25H5.87l4.19-4.19L9 3l-6 6 6 6 1.06-1.06-4.19-4.19H15z" />
           </svg>
-        </button>
+          </button>
+        </div>
       </div>
 
       {/* Messages */}
@@ -157,6 +177,21 @@ export const ChatPanel: FunctionalComponent<ChatPanelProps> = ({
         disabled={false}
         inputRef={setInputRef}
       />
+
+      {/* Watermark */}
+      {showWatermark !== false && (
+        <div class="jc-watermark">
+          Powered by{' '}
+          <a
+            href="https://jotil.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="jc-watermark-link"
+          >
+            Jotil
+          </a>
+        </div>
+      )}
     </div>
   );
 };

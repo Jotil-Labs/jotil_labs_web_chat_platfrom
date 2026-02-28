@@ -138,6 +138,8 @@ export async function POST(req: Request) {
             content: fullText,
             modelUsed: client.ai_model,
             tokensUsed: usage?.totalTokens,
+            promptTokens: usage?.inputTokens,
+            completionTokens: usage?.outputTokens,
           });
           await updateConversationTimestamp(activeConversationId!);
           await incrementUsage(clientId);
@@ -156,10 +158,13 @@ export async function POST(req: Request) {
       },
     });
 
-    // Add CORS and conversation ID headers
+    // Add CORS, conversation ID, and debug headers
+    const requestId = crypto.randomUUID();
     const responseHeaders = new Headers(response.headers);
     Object.entries(headers).forEach(([k, v]) => responseHeaders.set(k, v));
     responseHeaders.set('X-Conversation-Id', activeConversationId);
+    responseHeaders.set('X-Request-Id', requestId);
+    responseHeaders.set('X-Model', client.ai_model);
 
     return new Response(response.body, {
       status: 200,

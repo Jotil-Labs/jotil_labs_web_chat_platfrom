@@ -55,6 +55,8 @@ export async function GET(req: Request) {
     greetingMessage: c.greetingMessage ?? null,
     glowEffect: c.glowEffect ?? false,
     starterQuestions: client.starter_questions ?? null,
+    showWatermark: client.show_watermark ?? true,
+    conversationExpiryHours: client.conversation_expiry_hours ?? 24,
   };
 
   return new Response(JSON.stringify(config), {
