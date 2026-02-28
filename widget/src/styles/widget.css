@@ -13,8 +13,11 @@
   --jc-border: #E5E7EB;
   --jc-error: #DC2626;
   --jc-error-light: #FEF2F2;
+  --jc-error-text: #991B1B;
   --jc-shadow: rgba(0, 0, 0, 0.12);
   --jc-border-radius: 16px;
+  --jc-code-bg: #1F2937;
+  --jc-code-text: #F9FAFB;
 
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   font-size: 14px;
@@ -75,6 +78,32 @@
 .jc-position-bottom-right.jc-bubble-button { right: 24px; }
 .jc-position-bottom-left.jc-bubble-button { left: 24px; }
 
+/* ---- Unread Badge ---- */
+.jc-unread-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  background: #EF4444;
+  color: #FFFFFF;
+  font-size: 11px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  line-height: 1;
+  animation: jc-badge-pop 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes jc-badge-pop {
+  0% { transform: scale(0); }
+  70% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
 /* ---- Bubble Glow Effect ---- */
 @keyframes jc-glow-pulse {
   0%, 100% {
@@ -108,16 +137,38 @@
   max-height: 80vh;
   background: var(--jc-surface);
   border-radius: var(--jc-border-radius);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 8px 30px var(--jc-shadow);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   z-index: 2147483647;
-  animation: jc-panel-open 200ms ease-out;
+  animation: jc-panel-open 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .jc-position-bottom-right.jc-chat-panel { right: 24px; }
 .jc-position-bottom-left.jc-chat-panel { left: 24px; }
+
+/* ---- Widget Size Variants ---- */
+.jc-size-compact {
+  width: 340px;
+  height: 460px;
+}
+
+.jc-size-standard {
+  width: 380px;
+  height: 520px;
+}
+
+.jc-size-large {
+  width: 420px;
+  height: 600px;
+  font-size: 15px;
+}
+
+.jc-size-compact .jc-header {
+  height: 56px;
+  min-height: 56px;
+}
 
 /* ---- Greeting Tooltip ---- */
 .jc-greeting-tooltip {
@@ -211,6 +262,25 @@
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.2);
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.jc-header-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.jc-header-avatar-letter {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--jc-on-primary);
+  text-transform: uppercase;
+  line-height: 1;
 }
 
 .jc-header-info {
@@ -277,7 +347,7 @@
 .jc-message {
   margin-bottom: 12px;
   display: flex;
-  animation: jc-message-appear 150ms ease-out;
+  animation: jc-bubble-entrance 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .jc-message-user {
@@ -286,8 +356,60 @@
 
 .jc-message-bot {
   justify-content: flex-start;
+  align-items: flex-start;
+}
+
+/* ---- Message Content Wrapper ---- */
+.jc-message-content {
+  display: flex;
   flex-direction: column;
   align-items: flex-start;
+  min-width: 0;
+  max-width: 85%;
+}
+
+.jc-message-user .jc-message-content {
+  align-items: flex-end;
+}
+
+/* ---- Message Avatar ---- */
+.jc-msg-avatar {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  border-radius: 50%;
+  background: var(--jc-surface-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  margin-right: 8px;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.jc-msg-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.jc-msg-avatar-letter {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--jc-text-secondary);
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+/* ---- Message Timestamp ---- */
+.jc-message-time {
+  font-size: 11px;
+  color: var(--jc-text-secondary);
+  opacity: 0.7;
+  margin-top: 2px;
+  padding-left: 4px;
 }
 
 /* ---- Bubbles ---- */
@@ -307,10 +429,9 @@
 }
 
 .jc-bubble-bot {
-  background: var(--jc-surface);
+  background: var(--jc-surface-secondary);
   color: var(--jc-text);
   border-radius: 18px 18px 18px 4px;
-  max-width: 85%;
 }
 
 /* ---- Markdown Content ---- */
@@ -331,7 +452,7 @@
 }
 
 .jc-markdown-content .jc-inline-code {
-  background: #E5E7EB;
+  background: var(--jc-surface-secondary);
   padding: 1px 4px;
   border-radius: 3px;
   font-family: "SF Mono", "Fira Code", "Fira Mono", Menlo, Consolas, "DejaVu Sans Mono", monospace;
@@ -339,8 +460,8 @@
 }
 
 .jc-markdown-content .jc-code-block {
-  background: #1F2937;
-  color: #F9FAFB;
+  background: var(--jc-code-bg);
+  color: var(--jc-code-text);
   padding: 12px;
   border-radius: 8px;
   overflow-x: auto;
@@ -430,7 +551,7 @@
   flex-wrap: wrap;
   gap: 8px;
   padding: 4px 0 12px 0;
-  animation: jc-message-appear 200ms ease-out;
+  animation: jc-bubble-entrance 200ms ease-out;
 }
 
 .jc-starter-chip {
@@ -466,6 +587,12 @@
   align-items: center;
 }
 
+.jc-typing-text {
+  font-size: 12px;
+  color: var(--jc-text-secondary);
+  margin-right: 6px;
+}
+
 .jc-typing-dot {
   width: 6px;
   height: 6px;
@@ -483,25 +610,34 @@
   animation-delay: 200ms;
 }
 
+/* When botName text is present, dots are children 2-4 not 1-3 */
+.jc-typing-text ~ .jc-typing-dot:nth-child(3) {
+  animation-delay: 100ms;
+}
+
+.jc-typing-text ~ .jc-typing-dot:nth-child(4) {
+  animation-delay: 200ms;
+}
+
 /* ---- Error Message ---- */
 .jc-error-message {
   background: var(--jc-error-light);
   padding: 10px 14px;
   margin: 0 16px 8px;
   border-radius: 8px;
-  animation: jc-message-appear 200ms ease-out;
+  animation: jc-bubble-entrance 200ms ease-out;
 }
 
 .jc-error-text {
-  color: #991B1B;
+  color: var(--jc-error-text);
   font-size: 13px;
   margin-bottom: 8px;
 }
 
 .jc-error-retry {
   background: none;
-  border: 1px solid #991B1B;
-  color: #991B1B;
+  border: 1px solid var(--jc-error-text);
+  color: var(--jc-error-text);
   padding: 4px 12px;
   border-radius: 4px;
   cursor: pointer;
@@ -659,11 +795,17 @@
 
 /* ---- Animations ---- */
 @keyframes jc-panel-open {
-  from {
+  0% {
     opacity: 0;
-    transform: translateY(16px) scale(0.95);
+    transform: translateY(20px) scale(0.92);
   }
-  to {
+  60% {
+    transform: translateY(-4px) scale(1.01);
+  }
+  80% {
+    transform: translateY(2px) scale(0.995);
+  }
+  100% {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
@@ -672,6 +814,20 @@
 @keyframes jc-fade-in {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+
+@keyframes jc-bubble-entrance {
+  0% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  60% {
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 @keyframes jc-message-appear {
@@ -697,7 +853,8 @@
   .jc-message,
   .jc-error-message,
   .jc-scroll-bottom,
-  .jc-greeting-tooltip {
+  .jc-greeting-tooltip,
+  .jc-unread-badge {
     animation: none;
   }
 
@@ -739,6 +896,15 @@
     height: 100vh;
     max-height: 100vh;
     border-radius: 0;
+  }
+
+  /* Override size variants on mobile */
+  .jc-size-compact,
+  .jc-size-standard,
+  .jc-size-large {
+    width: 100vw;
+    height: 100vh;
+    max-height: 100vh;
   }
 
   .jc-position-bottom-right.jc-chat-panel,
