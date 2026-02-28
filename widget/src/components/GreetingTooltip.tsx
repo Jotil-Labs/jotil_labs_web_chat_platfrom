@@ -2,17 +2,18 @@ import type { FunctionalComponent } from 'preact';
 import { useState, useEffect, useCallback } from 'preact/hooks';
 
 const STORAGE_KEY = 'jotil_greeting_dismissed';
-const SHOW_DELAY_MS = 3000;
 
 interface GreetingTooltipProps {
   message: string;
   position: 'bottom-right' | 'bottom-left';
+  delaySeconds?: number;
   onOpen: () => void;
 }
 
 export const GreetingTooltip: FunctionalComponent<GreetingTooltipProps> = ({
   message,
   position,
+  delaySeconds = 3,
   onOpen,
 }) => {
   const [visible, setVisible] = useState(false);
@@ -24,9 +25,9 @@ export const GreetingTooltip: FunctionalComponent<GreetingTooltipProps> = ({
       // localStorage unavailable — show tooltip anyway
     }
 
-    const timer = setTimeout(() => setVisible(true), SHOW_DELAY_MS);
+    const timer = setTimeout(() => setVisible(true), delaySeconds * 1000);
     return () => clearTimeout(timer);
-  }, []);
+  }, [delaySeconds]);
 
   const dismiss = useCallback(
     (e: Event) => {
