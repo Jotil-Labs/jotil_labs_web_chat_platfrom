@@ -57,6 +57,12 @@ export async function GET(req: Request) {
     starterQuestions: client.starter_questions ?? null,
     showWatermark: client.show_watermark ?? true,
     conversationExpiryHours: client.conversation_expiry_hours ?? 24,
+    botAvatarUrl: c.botAvatarUrl ?? null,
+    autoOpenDelay: c.autoOpenDelay ?? null,
+    greetingDelay: c.greetingDelay ?? 3,
+    widgetSize: c.widgetSize ?? 'standard',
+    soundEnabled: c.soundEnabled ?? true,
+    darkMode: c.darkMode ?? 'light',
   };
 
   return new Response(JSON.stringify(config), {

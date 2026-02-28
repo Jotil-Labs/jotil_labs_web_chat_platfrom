@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'preact/hooks';
 import { getContrastColor } from '../utils/contrast';
 
+export type DarkMode = 'light' | 'dark' | 'auto';
+export type WidgetSize = 'compact' | 'standard' | 'large';
+
 export interface WidgetConfig {
   botName: string;
   welcomeMessage: string;
@@ -14,12 +17,24 @@ export interface WidgetConfig {
   starterQuestions: string[] | null;
   showWatermark: boolean;
   conversationExpiryHours: number | null;
+  botAvatarUrl: string | null;
+  autoOpenDelay: number | null;
+  greetingDelay: number;
+  widgetSize: WidgetSize;
+  soundEnabled: boolean;
+  darkMode: DarkMode;
 }
 
 interface UseConfigResult {
   config: WidgetConfig | null;
   loading: boolean;
   error: string | null;
+}
+
+function resolveIsDark(mode: DarkMode): boolean {
+  if (mode === 'dark') return true;
+  if (mode === 'light') return false;
+  return window.matchMedia('(prefers-color-scheme: dark)').matches;
 }
 
 export function useConfig(
@@ -65,6 +80,16 @@ export function useConfig(
     };
   }, [apiBase, clientId, shadowRoot]);
 
+  // Live auto-mode switching for dark mode
+  useEffect(() => {
+    if (!config || config.darkMode !== 'auto' || !shadowRoot) return;
+
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const handler = () => applyTheme(config, shadowRoot);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, [config, shadowRoot]);
+
   return { config, loading, error };
 }
 
@@ -72,6 +97,7 @@ function applyTheme(config: WidgetConfig, shadowRoot: ShadowRoot | null): void {
   if (!shadowRoot) return;
 
   const host = shadowRoot.host as HTMLElement;
+  const isDark = resolveIsDark(config.darkMode);
   const onPrimary = getContrastColor(config.primaryColor);
   const primaryRgb = hexToRgb(config.primaryColor);
 
@@ -88,15 +114,35 @@ function applyTheme(config: WidgetConfig, shadowRoot: ShadowRoot | null): void {
     '--jc-on-primary',
     onPrimary === 'white' ? '#FFFFFF' : '#000000'
   );
-  host.style.setProperty('--jc-surface', '#FFFFFF');
-  host.style.setProperty('--jc-surface-secondary', '#F3F4F6');
-  host.style.setProperty('--jc-text', '#1F2937');
-  host.style.setProperty('--jc-text-secondary', '#6B7280');
-  host.style.setProperty('--jc-border', '#E5E7EB');
-  host.style.setProperty('--jc-error', '#DC2626');
-  host.style.setProperty('--jc-error-light', '#FEF2F2');
-  host.style.setProperty('--jc-shadow', 'rgba(0,0,0,0.12)');
   host.style.setProperty('--jc-border-radius', `${config.borderRadius}px`);
+
+  if (isDark) {
+    host.style.setProperty('--jc-surface', '#1F2937');
+    host.style.setProperty('--jc-surface-secondary', '#374151');
+    host.style.setProperty('--jc-text', '#F9FAFB');
+    host.style.setProperty('--jc-text-secondary', '#9CA3AF');
+    host.style.setProperty('--jc-border', '#4B5563');
+    host.style.setProperty('--jc-error', '#EF4444');
+    host.style.setProperty('--jc-error-light', 'rgba(239,68,68,0.15)');
+    host.style.setProperty('--jc-error-text', '#FCA5A5');
+    host.style.setProperty('--jc-shadow', 'rgba(0,0,0,0.3)');
+    host.style.setProperty('--jc-code-bg', '#111827');
+    host.style.setProperty('--jc-code-text', '#E5E7EB');
+  } else {
+    host.style.setProperty('--jc-surface', '#FFFFFF');
+    host.style.setProperty('--jc-surface-secondary', '#F3F4F6');
+    host.style.setProperty('--jc-text', '#1F2937');
+    host.style.setProperty('--jc-text-secondary', '#6B7280');
+    host.style.setProperty('--jc-border', '#E5E7EB');
+    host.style.setProperty('--jc-error', '#DC2626');
+    host.style.setProperty('--jc-error-light', '#FEF2F2');
+    host.style.setProperty('--jc-error-text', '#991B1B');
+    host.style.setProperty('--jc-shadow', 'rgba(0,0,0,0.12)');
+    host.style.setProperty('--jc-code-bg', '#1F2937');
+    host.style.setProperty('--jc-code-text', '#F9FAFB');
+  }
+
+  host.setAttribute('data-theme', isDark ? 'dark' : 'light');
 }
 
 function hexToRgb(hex: string): string {

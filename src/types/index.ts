@@ -3,11 +3,20 @@ export type Position = 'bottom-right' | 'bottom-left';
 export type MessageRole = 'user' | 'assistant';
 export type Feedback = 'positive' | 'negative';
 
+export type DarkMode = 'light' | 'dark' | 'auto';
+export type WidgetSize = 'compact' | 'standard' | 'large';
+
 export interface ClientCustomization {
   bubbleIconUrl?: string;
   logoUrl?: string;
   greetingMessage?: string;
   glowEffect?: boolean;
+  botAvatarUrl?: string;
+  autoOpenDelay?: number | null;
+  greetingDelay?: number;
+  widgetSize?: WidgetSize;
+  soundEnabled?: boolean;
+  darkMode?: DarkMode;
 }
 
 export interface Client {
@@ -69,6 +78,12 @@ export interface WidgetConfig {
   starterQuestions: string[] | null;
   showWatermark: boolean;
   conversationExpiryHours: number | null;
+  botAvatarUrl: string | null;
+  autoOpenDelay: number | null;
+  greetingDelay: number;
+  widgetSize: WidgetSize;
+  soundEnabled: boolean;
+  darkMode: DarkMode;
 }
 
 export interface ChatRequest {
