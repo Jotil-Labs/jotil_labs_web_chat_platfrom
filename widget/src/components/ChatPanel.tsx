@@ -4,6 +4,7 @@ import { MessageList } from './MessageList';
 import { InputBar } from './InputBar';
 import { ErrorMessage } from './ErrorMessage';
 import type { ChatMessageUI } from '../hooks/useChat';
+import type { WidgetSize } from '../hooks/useConfig';
 
 interface ChatPanelProps {
   isOpen: boolean;
@@ -16,6 +17,8 @@ interface ChatPanelProps {
   logoUrl?: string | null;
   starterQuestions?: string[] | null;
   showWatermark?: boolean;
+  botAvatarUrl?: string | null;
+  widgetSize?: WidgetSize;
   onClose: () => void;
   onSend: (text: string) => void;
   onCancel: () => void;
@@ -35,6 +38,8 @@ export const ChatPanel: FunctionalComponent<ChatPanelProps> = ({
   logoUrl,
   starterQuestions,
   showWatermark,
+  botAvatarUrl,
+  widgetSize = 'standard',
   onClose,
   onSend,
   onCancel,
@@ -43,6 +48,7 @@ export const ChatPanel: FunctionalComponent<ChatPanelProps> = ({
   onFeedback,
 }) => {
   const [logoError, setLogoError] = useState(false);
+  const [avatarError, setAvatarError] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const inputElRef = useRef<HTMLTextAreaElement | null>(null);
 
@@ -90,17 +96,36 @@ export const ChatPanel: FunctionalComponent<ChatPanelProps> = ({
 
   if (!isOpen) return null;
 
+  const panelClasses = [
+    'jc-chat-panel',
+    `jc-position-${position}`,
+    `jc-size-${widgetSize}`,
+  ].join(' ');
+
+  const showAvatarImg = botAvatarUrl && !avatarError;
+
   return (
     <div
       ref={panelRef}
-      class={`jc-chat-panel jc-position-${position}`}
+      class={panelClasses}
       role="dialog"
       aria-label={`Chat with ${botName}`}
     >
       {/* Header */}
       <div class="jc-header">
         <div class="jc-header-left">
-          <div class="jc-header-avatar" aria-hidden="true" />
+          <div class="jc-header-avatar" aria-hidden="true">
+            {showAvatarImg ? (
+              <img
+                class="jc-header-avatar-img"
+                src={botAvatarUrl}
+                alt=""
+                onError={() => setAvatarError(true)}
+              />
+            ) : (
+              <span class="jc-header-avatar-letter">{botName[0]}</span>
+            )}
+          </div>
           <div class="jc-header-info">
             {logoUrl && !logoError ? (
               <img
@@ -149,6 +174,8 @@ export const ChatPanel: FunctionalComponent<ChatPanelProps> = ({
         welcomeMessage={welcomeMessage}
         isStreaming={isStreaming}
         starterQuestions={starterQuestions}
+        botName={botName}
+        botAvatarUrl={botAvatarUrl}
         onFeedback={onFeedback}
         onStarterClick={onSend}
       />

@@ -9,6 +9,8 @@ interface MessageListProps {
   welcomeMessage: string;
   isStreaming: boolean;
   starterQuestions?: string[] | null;
+  botName?: string;
+  botAvatarUrl?: string | null;
   onFeedback: (messageId: string, feedback: 'positive' | 'negative') => void;
   onStarterClick?: (text: string) => void;
 }
@@ -18,12 +20,15 @@ export const MessageList: FunctionalComponent<MessageListProps> = ({
   welcomeMessage,
   isStreaming,
   starterQuestions,
+  botName,
+  botAvatarUrl,
   onFeedback,
   onStarterClick,
 }) => {
   const listRef = useRef<HTMLDivElement>(null);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const isNearBottomRef = useRef(true);
+  const [, setTick] = useState(0);
 
   const scrollToBottom = useCallback((smooth = true) => {
     const el = listRef.current;
@@ -60,12 +65,28 @@ export const MessageList: FunctionalComponent<MessageListProps> = ({
     }
   }, [messages.length, scrollToBottom, messages]);
 
+  // Refresh timestamps every 60 seconds
+  useEffect(() => {
+    const interval = setInterval(() => setTick((t) => t + 1), 60000);
+    return () => clearInterval(interval);
+  }, []);
+
   // Show typing indicator only before first token arrives
   const showTyping =
     isStreaming &&
     messages.length > 0 &&
     messages[messages.length - 1].role === 'assistant' &&
     messages[messages.length - 1].content === '';
+
+  // Show starter questions when no messages, or as follow-up after last completed bot response
+  const lastMsg = messages[messages.length - 1];
+  const showStarters =
+    starterQuestions &&
+    starterQuestions.length > 0 &&
+    (messages.length === 0 ||
+      (!isStreaming &&
+        lastMsg?.role === 'assistant' &&
+        lastMsg.content !== ''));
 
   return (
     <div
@@ -78,34 +99,45 @@ export const MessageList: FunctionalComponent<MessageListProps> = ({
     >
       {/* Welcome message */}
       <div class="jc-message jc-message-bot">
-        <div class="jc-bubble jc-bubble-bot">
-          <span>{welcomeMessage}</span>
+        {botAvatarUrl || botName ? (
+          <div class="jc-msg-avatar" aria-hidden="true">
+            {botAvatarUrl ? (
+              <img class="jc-msg-avatar-img" src={botAvatarUrl} alt="" />
+            ) : (
+              <span class="jc-msg-avatar-letter">{botName![0]}</span>
+            )}
+          </div>
+        ) : null}
+        <div class="jc-message-content">
+          <div class="jc-bubble jc-bubble-bot">
+            <span>{welcomeMessage}</span>
+          </div>
         </div>
       </div>
 
-      {/* Starter questions — shown only before first user message */}
-      {starterQuestions &&
-        starterQuestions.length > 0 &&
-        messages.length === 0 && (
-          <div class="jc-starter-questions">
-            {starterQuestions.map((q) => (
-              <button
-                key={q}
-                type="button"
-                class="jc-starter-chip"
-                onClick={() => onStarterClick?.(q)}
-              >
-                {q}
-              </button>
-            ))}
-          </div>
-        )}
+      {/* Starter / follow-up questions */}
+      {showStarters && (
+        <div class="jc-starter-questions">
+          {starterQuestions!.map((q) => (
+            <button
+              key={q}
+              type="button"
+              class="jc-starter-chip"
+              onClick={() => onStarterClick?.(q)}
+            >
+              {q}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Messages */}
       {messages.map((msg) => (
         <MessageBubble
           key={msg.id}
           message={msg}
+          botAvatarUrl={botAvatarUrl}
+          botName={botName}
           onFeedback={onFeedback}
         />
       ))}
@@ -113,7 +145,18 @@ export const MessageList: FunctionalComponent<MessageListProps> = ({
       {/* Typing indicator */}
       {showTyping && (
         <div class="jc-message jc-message-bot">
-          <TypingIndicator />
+          {botAvatarUrl || botName ? (
+            <div class="jc-msg-avatar" aria-hidden="true">
+              {botAvatarUrl ? (
+                <img class="jc-msg-avatar-img" src={botAvatarUrl} alt="" />
+              ) : (
+                <span class="jc-msg-avatar-letter">{botName![0]}</span>
+              )}
+            </div>
+          ) : null}
+          <div class="jc-message-content">
+            <TypingIndicator botName={botName} />
+          </div>
         </div>
       )}
 
