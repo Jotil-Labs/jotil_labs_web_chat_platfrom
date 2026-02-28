@@ -6,6 +6,7 @@ interface BubbleButtonProps {
   position: 'bottom-right' | 'bottom-left';
   glowEffect?: boolean;
   iconUrl?: string | null;
+  unreadCount?: number;
 }
 
 export const BubbleButton: FunctionalComponent<BubbleButtonProps> = ({
@@ -13,6 +14,7 @@ export const BubbleButton: FunctionalComponent<BubbleButtonProps> = ({
   position,
   glowEffect = false,
   iconUrl,
+  unreadCount = 0,
 }) => {
   const [iconError, setIconError] = useState(false);
 
@@ -30,7 +32,7 @@ export const BubbleButton: FunctionalComponent<BubbleButtonProps> = ({
     <button
       class={classes}
       onClick={onClick}
-      aria-label="Open chat"
+      aria-label={unreadCount > 0 ? `Open chat (${unreadCount} unread)` : 'Open chat'}
       type="button"
     >
       {showCustomIcon ? (
@@ -57,6 +59,11 @@ export const BubbleButton: FunctionalComponent<BubbleButtonProps> = ({
           />
           <path d="M7 9H17V11H7V9ZM7 5H17V7H7V5Z" fill="currentColor" />
         </svg>
+      )}
+      {unreadCount > 0 && (
+        <span class="jc-unread-badge" aria-hidden="true">
+          {unreadCount > 9 ? '9+' : unreadCount}
+        </span>
       )}
     </button>
   );
