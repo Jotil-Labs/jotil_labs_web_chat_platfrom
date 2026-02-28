@@ -14,7 +14,7 @@
   --jc-error: #DC2626;
   --jc-error-light: #FEF2F2;
   --jc-shadow: rgba(0, 0, 0, 0.12);
-  --jc-border-radius: 12px;
+  --jc-border-radius: 16px;
 
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   font-size: 14px;
@@ -108,7 +108,7 @@
   max-height: 80vh;
   background: var(--jc-surface);
   border-radius: var(--jc-border-radius);
-  box-shadow: 0 8px 32px var(--jc-shadow);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -187,9 +187,9 @@
 
 /* ---- Header ---- */
 .jc-header {
-  height: 48px;
-  min-height: 48px;
-  background: var(--jc-primary);
+  height: 64px;
+  min-height: 64px;
+  background: linear-gradient(135deg, var(--jc-primary) 0%, var(--jc-primary-hover) 100%);
   color: var(--jc-on-primary);
   display: flex;
   align-items: center;
@@ -201,8 +201,26 @@
 .jc-header-left {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   min-width: 0;
+}
+
+.jc-header-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
+}
+
+.jc-header-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.jc-header-status {
+  font-size: 11px;
+  opacity: 0.8;
 }
 
 .jc-header-logo {
@@ -247,10 +265,6 @@
   outline-offset: 2px;
 }
 
-/* Show/hide close icons based on screen size */
-.jc-close-icon-mobile { display: none; }
-.jc-close-icon-desktop { display: block; }
-
 /* ---- Message List ---- */
 .jc-message-list {
   flex: 1;
@@ -261,7 +275,7 @@
 }
 
 .jc-message {
-  margin-bottom: 8px;
+  margin-bottom: 12px;
   display: flex;
   animation: jc-message-appear 150ms ease-out;
 }
@@ -288,14 +302,14 @@
 .jc-bubble-user {
   background: var(--jc-primary);
   color: var(--jc-on-primary);
-  border-radius: 16px 16px 4px 16px;
+  border-radius: 18px 18px 4px 18px;
   max-width: 80%;
 }
 
 .jc-bubble-bot {
-  background: var(--jc-surface-secondary);
+  background: var(--jc-surface);
   color: var(--jc-text);
-  border-radius: 16px 16px 16px 4px;
+  border-radius: 18px 18px 18px 4px;
   max-width: 85%;
 }
 
@@ -422,8 +436,8 @@
 .jc-starter-chip {
   background: var(--jc-surface);
   color: var(--jc-primary);
-  border: 1px solid var(--jc-primary);
-  border-radius: 16px;
+  border: 1px solid var(--jc-primary-light);
+  border-radius: 20px;
   padding: 6px 14px;
   font-size: 13px;
   font-family: inherit;
@@ -436,6 +450,7 @@
 .jc-starter-chip:hover {
   background: var(--jc-primary);
   color: var(--jc-on-primary);
+  border-color: var(--jc-primary);
 }
 
 .jc-starter-chip:focus-visible {
@@ -502,8 +517,8 @@
 .jc-input-bar {
   display: flex;
   align-items: flex-end;
-  padding: 8px 12px;
-  border-top: 1px solid var(--jc-border);
+  padding: 10px 12px;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.04);
   min-height: 56px;
   gap: 8px;
 }
@@ -511,14 +526,14 @@
 .jc-input-textarea {
   flex: 1;
   border: 1px solid var(--jc-border);
-  border-radius: 8px;
-  padding: 10px 12px;
+  border-radius: 20px;
+  padding: 10px 16px;
   font-size: 14px;
   font-family: inherit;
   line-height: 1.4;
   resize: none;
   outline: none;
-  background: var(--jc-surface);
+  background: var(--jc-surface-secondary);
   color: var(--jc-text);
   max-height: 120px;
 }
@@ -532,10 +547,10 @@
 }
 
 .jc-send-button {
-  width: 44px;
-  height: 44px;
-  min-width: 44px;
-  border-radius: 8px;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  border-radius: 50%;
   border: none;
   display: flex;
   align-items: center;
@@ -587,7 +602,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: 0.5;
+  opacity: 0.4;
   transition: opacity 150ms ease;
 }
 
@@ -628,7 +643,7 @@
   padding: 4px 12px 6px;
   font-size: 11px;
   color: var(--jc-text-secondary);
-  opacity: 0.6;
+  opacity: 0.4;
 }
 
 .jc-watermark-link {
@@ -700,7 +715,9 @@
   }
 
   .jc-send-button,
-  .jc-starter-chip {
+  .jc-starter-chip,
+  .jc-feedback-btn,
+  .jc-input-textarea {
     transition: none;
   }
 }
@@ -734,7 +751,4 @@
     bottom: 80px;
     max-width: 200px;
   }
-
-  .jc-close-icon-desktop { display: none; }
-  .jc-close-icon-mobile { display: block; }
 }
