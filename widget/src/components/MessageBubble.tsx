@@ -32,6 +32,9 @@ export const MessageBubble: FunctionalComponent<MessageBubbleProps> = ({
   const isUser = message.role === 'user';
   const isCompleted = !isUser && !message.isStreaming && message.content;
 
+  // Don't render an empty bubble while waiting for first token — TypingIndicator handles this state
+  if (!isUser && !message.content) return null;
+
   const handleCopy = () => {
     navigator.clipboard.writeText(message.content).then(() => {
       setCopied(true);
