@@ -3,11 +3,20 @@ export type Position = 'bottom-right' | 'bottom-left';
 export type MessageRole = 'user' | 'assistant';
 export type Feedback = 'positive' | 'negative';
 
+export type DarkMode = 'light' | 'dark' | 'auto';
+export type WidgetSize = 'compact' | 'standard' | 'large';
+
 export interface ClientCustomization {
   bubbleIconUrl?: string;
   logoUrl?: string;
   greetingMessage?: string;
   glowEffect?: boolean;
+  botAvatarUrl?: string;
+  autoOpenDelay?: number | null;
+  greetingDelay?: number;
+  widgetSize?: WidgetSize;
+  soundEnabled?: boolean;
+  darkMode?: DarkMode;
 }
 
 export interface Client {
@@ -24,6 +33,8 @@ export interface Client {
   document_context: string | null;
   customization: ClientCustomization;
   starter_questions: string[] | null;
+  show_watermark: boolean;
+  conversation_expiry_hours: number | null;
   plan: Plan;
   message_limit: number;
   messages_used: number;
@@ -48,6 +59,8 @@ export interface Message {
   content: string;
   model_used: string | null;
   tokens_used: number | null;
+  prompt_tokens: number | null;
+  completion_tokens: number | null;
   feedback: Feedback | null;
   created_at: string;
 }
@@ -63,6 +76,14 @@ export interface WidgetConfig {
   greetingMessage: string | null;
   glowEffect: boolean;
   starterQuestions: string[] | null;
+  showWatermark: boolean;
+  conversationExpiryHours: number | null;
+  botAvatarUrl: string | null;
+  autoOpenDelay: number | null;
+  greetingDelay: number;
+  widgetSize: WidgetSize;
+  soundEnabled: boolean;
+  darkMode: DarkMode;
 }
 
 export interface ChatRequest {
@@ -95,4 +116,46 @@ export interface ModelDefinition {
   displayName: string;
   provider: string;
   defaultForPlan: Plan | null;
+}
+
+// Dashboard types
+
+export type UserRole = 'admin' | 'client';
+
+export interface AdminUser {
+  id: string;
+  email: string;
+  role: UserRole;
+  client_id: string | null;
+  display_name: string | null;
+  created_at: string;
+}
+
+export interface ClientCreateInput {
+  name: string;
+  domain: string;
+  bot_name: string;
+  welcome_message: string;
+  system_prompt: string;
+  ai_model: string;
+  primary_color: string;
+  border_radius?: number;
+  position?: Position;
+  document_context?: string | null;
+  customization?: ClientCustomization;
+  starter_questions?: string[] | null;
+  show_watermark?: boolean;
+  conversation_expiry_hours?: number;
+  plan: Plan;
+  message_limit: number;
+  billing_email?: string;
+}
+
+export type ClientUpdateInput = Partial<ClientCreateInput> & {
+  active?: boolean;
+};
+
+export interface ConversationWithStats extends Conversation {
+  message_count: number;
+  last_message_preview: string | null;
 }

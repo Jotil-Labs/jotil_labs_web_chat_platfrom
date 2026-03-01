@@ -1,6 +1,6 @@
 # Jotil Chat: Widget Design Specification
 
-**Version:** 2.0  
+**Version:** 3.0
 **Last Updated:** February 2026  
 **Target:** Embeddable chat widget for client websites
 
@@ -64,22 +64,25 @@ The widget has five distinct states. Every state must feel polished.
 - Icon color: `--jc-on-primary` (white or black, auto-contrast based on primaryColor brightness)
 - Shadow: `0 4px 12px rgba(0, 0, 0, 0.15)`
 - Hover: scale to 1.05 with 150ms ease transition
-- Optional: unread badge (red dot, 12px diameter, top-right of button) when there is an unanswered assistant message from a previous session that the visitor has not yet seen
+- Unread badge: red circle (18px), positioned top-right of button, shows count (capped at "9+"). Increments when bot messages arrive while the panel is closed. Resets to 0 when panel opens. Pop animation on appearance (scale 0→1.15→1)
 
 ### 2.2 Open (Idle)
 
-- Panel slides up from the button with 200ms ease-out animation
-- Panel size:
-  - Desktop: 380px wide, 520px tall (max 80vh)
-  - Mobile (below 640px viewport): full-screen overlay (100vw x 100vh)
+- Panel slides up from the button with 300ms spring overshoot animation (4-step keyframe: translateY(20px) scale(0.92) → translateY(-4px) scale(1.01) → translateY(2px) scale(0.995) → translateY(0) scale(1))
+- Panel size (configurable via `widgetSize`):
+  - **Compact:** 340px wide, 460px tall (header 56px)
+  - **Standard (default):** 380px wide, 520px tall (header 64px)
+  - **Large:** 420px wide, 600px tall (header 64px, 15px base font)
+  - Mobile (below 640px viewport): all sizes override to full-screen overlay (100vw x 100vh)
 - Panel structure top to bottom:
-  - **Header bar** (48px height): Bot name/title (left-aligned), close button (right-aligned, X icon on desktop, back arrow on mobile)
-  - **Message area** (flex-grow, scrollable): conversation messages
+  - **Header bar** (64px height, 56px for compact): Bot avatar (36px circle, image or first-letter fallback) + Bot name/title (left-aligned) + "Online" status, close button (right-aligned, X icon on desktop, back arrow on mobile)
+  - **Message area** (flex-grow, scrollable): conversation messages with per-message avatars
   - **Input area** (56px min height): text input + send button
 - Border radius: `--jc-border-radius` from config (default 12px, 0px on mobile full-screen)
-- Shadow: `0 8px 32px rgba(0, 0, 0, 0.12)`
-- Background: `--jc-surface` (#FFFFFF) for the panel body
-- Header background: `--jc-primary`
+- Shadow: `0 8px 30px var(--jc-shadow)`
+- Background: `--jc-surface` (light: #FFFFFF, dark: #1F2937)
+- Header background: linear gradient from `--jc-primary` to `--jc-primary-hover`
+- Auto-open: if `autoOpenDelay` is configured, the panel opens automatically after the specified seconds. Uses sessionStorage — dismissed panels do not re-open until the next session
 
 #### Welcome Message Behavior
 
@@ -90,11 +93,12 @@ The welcome message is not a real conversation message. It is not stored in the 
 ### 2.3 Typing (AI Responding)
 
 - User's message appears immediately in the message area (right-aligned bubble)
-- Typing indicator appears below (left-aligned):
-  - Three dots with sequential bounce animation
+- Typing indicator appears below (left-aligned), with bot avatar to the left:
+  - "{botName} is typing" text label (12px, secondary color) followed by three dots with sequential bounce animation
   - Dots are 6px circles, 4px gap, using `--jc-primary` at 60% opacity
   - Animation: each dot bounces 0.4s with 0.1s stagger
 - As tokens stream in from the backend, the typing indicator is replaced by the actual message text
+- Sound notification: when the bot response completes, a subtle sine wave chime plays (880Hz→440Hz, 300ms, 0.15 gain) if `soundEnabled` is true. Requires prior user interaction (browser autoplay policy)
 - Text appears token-by-token with no visible jank
 - Auto-scroll: message area scrolls to bottom as new tokens arrive, unless the visitor has manually scrolled up (in which case, show a "scroll to bottom" button)
 - Send button shows a stop icon during streaming. Clicking it cancels the stream (closes the SSE connection). The partial response remains visible as the assistant message.
@@ -136,19 +140,31 @@ The welcome message is not a real conversation message. It is not stored in the 
 - Margin bottom: 8px
 
 **Bot messages (left-aligned):**
-- Background: `--jc-surface-secondary` (#F3F4F6)
-- Text: `--jc-text` (#1F2937)
-- Border radius: 16px 16px 16px 4px
-- Max width: 85% of message area
+- 28px circular avatar to the left (image if `botAvatarUrl` configured, first-letter fallback otherwise)
+- Bubble wrapped in `.jc-message-content` div alongside feedback buttons and timestamp
+- Background: `--jc-surface-secondary` (light: #F3F4F6, dark: #374151)
+- Text: `--jc-text` (light: #1F2937, dark: #F9FAFB)
+- Border radius: 18px 18px 18px 4px
 - Padding: 10px 14px
-- Font size: 14px
-- Margin bottom: 8px
+- Font size: 14px (15px for large widget size)
+- Margin bottom: 12px
 - Markdown rendered (see Section 8 for full details)
 
+**Copy button:**
+- Appears on completed bot messages (after feedback buttons area)
+- Clipboard copy icon, swaps to checkmark for 2s after successful copy
+- Uses same `.jc-feedback-btn` styling (secondary color, 0.4 opacity, 1.0 on hover)
+
 **Timestamp:**
-- Below each message group (not every individual message)
-- Font size: 11px, color: `--jc-text-secondary` (#9CA3AF)
-- Format: "2:34 PM" (within today) or "Feb 24, 2:34 PM" (older)
+- Below each completed message (both user and bot)
+- Font size: 11px, color: `--jc-text-secondary`, opacity 0.7
+- Relative format: "just now", "3m ago", "2h ago", "yesterday", "3d ago", or "Mar 5" (for older)
+- Auto-refreshes every 60 seconds
+
+**Follow-up suggestions:**
+- Starter questions re-appear as clickable chips after each completed bot response
+- Disappear when the user sends the next message
+- Same styling as initial starter questions (pill buttons with primary color border)
 
 ### Send Button States
 
@@ -250,6 +266,30 @@ All colors derive from the `primaryColor` set by the client. The widget auto-gen
 
 **Auto-contrast logic:** Compute the relative luminance of primaryColor. If luminance > 0.5, `--jc-on-primary` is black (#000000). Otherwise, `--jc-on-primary` is white (#FFFFFF). This is implemented in `widget/src/utils/contrast.ts`. The function takes a hex color string and returns "black" or "white".
 
+### Dark Mode
+
+The widget supports three dark mode settings via the `darkMode` config field:
+
+- **"light"** (default): light background, dark text
+- **"dark"**: dark background, light text
+- **"auto"**: follows the visitor's system preference via `prefers-color-scheme` media query, with live switching via `matchMedia` listener
+
+Dark mode is implemented entirely through CSS custom property swapping in `useConfig.ts`. No separate CSS file or class toggling is needed. The `data-theme` attribute is set on the host element for reference.
+
+| Token | Light Value | Dark Value |
+|-------|------------|------------|
+| `--jc-surface` | #FFFFFF | #1F2937 |
+| `--jc-surface-secondary` | #F3F4F6 | #374151 |
+| `--jc-text` | #1F2937 | #F9FAFB |
+| `--jc-text-secondary` | #6B7280 | #9CA3AF |
+| `--jc-border` | #E5E7EB | #4B5563 |
+| `--jc-error` | #DC2626 | #EF4444 |
+| `--jc-error-light` | #FEF2F2 | rgba(239,68,68,0.15) |
+| `--jc-error-text` | #991B1B | #FCA5A5 |
+| `--jc-shadow` | rgba(0,0,0,0.12) | rgba(0,0,0,0.3) |
+| `--jc-code-bg` | #1F2937 | #111827 |
+| `--jc-code-text` | #F9FAFB | #E5E7EB |
+
 ---
 
 ## 7. Typography
@@ -274,7 +314,7 @@ Both font stacks must be declared in the widget's Shadow DOM styles. They are no
 
 ## 8. Markdown Rendering
 
-The widget renders a safe subset of markdown in bot responses. The renderer is custom-built in `widget/src/utils/markdown.ts`. Do not use external markdown libraries (marked, markdown-it, etc.) as they exceed the widget's 15KB bundle budget.
+The widget renders a safe subset of markdown in bot responses. The renderer is custom-built in `widget/src/utils/markdown.ts`. Do not use external markdown libraries (marked, markdown-it, etc.) as they add unnecessary bundle weight. Markdown elements use CSS custom properties for dark mode compatibility: inline code uses `var(--jc-surface-secondary)` background, code blocks use `var(--jc-code-bg)` / `var(--jc-code-text)`.
 
 ### Supported Markdown
 
@@ -314,15 +354,16 @@ The markdown renderer should work as a function that takes a markdown string and
 
 | Animation | Duration | Easing | Trigger |
 |-----------|----------|--------|---------|
-| Panel open | 200ms | ease-out | Click bubble button |
+| Panel open (spring) | 300ms | cubic-bezier(0.34, 1.56, 0.64, 1) | Click bubble button or auto-open |
 | Panel close | 150ms | ease-in | Click X/back arrow or bubble button |
 | Bubble button hover | 150ms | ease | Mouse enter |
+| Bubble entrance | 400ms | cubic-bezier(0.34, 1.56, 0.64, 1) | Message added to list (scale 0→1.05→1) |
 | Typing dots bounce | 400ms per dot, 100ms stagger | ease-in-out | AI is generating (before first token arrives) |
-| New message appear | 150ms | ease-out | Message added to list |
 | Token streaming | Per frame (requestAnimationFrame) | Linear | SSE tokens arriving |
 | Error message | 200ms | ease-out | API error |
 | Scroll to bottom | 100ms | ease-out | New message or tokens |
 | Scroll-to-bottom pill | 150ms | ease-out | Appears when new tokens arrive while scrolled up |
+| Unread badge pop | 300ms | cubic-bezier(0.34, 1.56, 0.64, 1) | Badge appears (scale 0→1.15→1) |
 
 All animations must respect `prefers-reduced-motion` media query. If reduced motion is preferred, replace all animations with instant state changes (0ms duration, no easing).
 
@@ -365,8 +406,8 @@ All animations must respect `prefers-reduced-motion` media query. If reduced mot
 
 | Metric | Target |
 |--------|--------|
-| Widget JS bundle size (gzipped) | Under 15KB |
-| Widget CSS (inside Shadow DOM) | Under 5KB |
+| Widget JS bundle size (gzipped) | Under 50KB (currently ~17KB) |
+| Widget CSS (inside Shadow DOM) | Under 10KB |
 | Time to interactive (widget loads) | Under 500ms |
 | Time to first token (after send) | Under 1,500ms |
 | Smooth streaming (no dropped frames) | 60fps during token rendering |

@@ -74,6 +74,8 @@ export async function saveMessage(params: {
   content: string;
   modelUsed?: string;
   tokensUsed?: number;
+  promptTokens?: number;
+  completionTokens?: number;
 }): Promise<Message> {
   const { data, error } = await supabase
     .from('messages')
@@ -83,6 +85,8 @@ export async function saveMessage(params: {
       content: params.content,
       model_used: params.modelUsed ?? null,
       tokens_used: params.tokensUsed ?? null,
+      prompt_tokens: params.promptTokens ?? null,
+      completion_tokens: params.completionTokens ?? null,
     })
     .select()
     .single();

@@ -41,6 +41,15 @@ Send the client the intake form below (email, Google Form, or however you prefer
 - Primary brand color (hex code, e.g., #2563EB). If the client does not know their hex code, ask for their website URL and pull the primary color from there.
 - Widget position: bottom-right (default) or bottom-left
 
+**Widget Customization (optional)**
+
+- Bot avatar image URL (displayed in header and next to each bot message; falls back to first letter of bot name if not provided)
+- Dark mode preference: "light" (default), "dark", or "auto" (follows the visitor's system preference)
+- Widget size: "compact" (340×460px), "standard" (380×520px, default), or "large" (420×600px, 15px font)
+- Sound notification: enabled (default) or disabled — plays a subtle chime when the bot responds
+- Auto-open delay: number of seconds before the chat panel auto-opens (e.g., 10). Leave blank to disable. Resets each browser session — visitors who dismiss the panel are not shown it again until their next session.
+- Greeting tooltip delay: number of seconds before the greeting tooltip appears (default: 3 seconds)
+
 **Starter Questions (optional but recommended)**
 
 - 2-3 suggested questions that appear as clickable chips when a visitor opens the chat (e.g., "What services do you offer?", "How do I book an appointment?"). These help visitors start the conversation. If the client does not provide them, leave blank.
@@ -116,11 +125,46 @@ Open the Supabase dashboard and insert a new row in the `clients` table.
 | border_radius | 12 (default). Adjust if the client's site uses a different design language. |
 | position | "bottom-right" or "bottom-left" |
 | document_context | Cleaned reference content from Step 3, or null if none provided |
+| customization | JSONB object with optional widget customization (see below), or `{}` if using defaults |
 | starter_questions | JSON array of 2-3 suggested questions, e.g., `["What services do you offer?", "What are your hours?"]`, or null |
+| show_watermark | true (default). Pro+ plans can set to false to hide "Powered by Jotil" |
+| conversation_expiry_hours | 24 (default). Hours before a conversation is considered expired and a new one starts |
 | plan | "starter", "pro", "agency", or "enterprise" |
 | message_limit | 2000, 10000, 50000, or 200000 based on plan |
 | messages_used | 0 |
 | active | true |
+
+### Customization JSONB Field
+
+The `customization` column is a JSONB object. All fields are optional — omit any field to use its default. Example with all options:
+
+```json
+{
+  "bubbleIconUrl": "https://example.com/icon.png",
+  "logoUrl": "https://example.com/logo.png",
+  "greetingMessage": "Need help? Ask me anything!",
+  "glowEffect": true,
+  "botAvatarUrl": "https://example.com/avatar.png",
+  "autoOpenDelay": 10,
+  "greetingDelay": 5,
+  "widgetSize": "large",
+  "soundEnabled": true,
+  "darkMode": "auto"
+}
+```
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `bubbleIconUrl` | string | null | Custom icon for the floating bubble button |
+| `logoUrl` | string | null | Logo image in the header (replaces bot name text) |
+| `greetingMessage` | string | null | Tooltip message shown above the bubble button |
+| `glowEffect` | boolean | false | Pulsing glow animation on the bubble button |
+| `botAvatarUrl` | string | null | Bot avatar image (header + next to each bot message). Falls back to first letter of bot name |
+| `autoOpenDelay` | number/null | null | Seconds before auto-opening the chat panel. null = disabled |
+| `greetingDelay` | number | 3 | Seconds before the greeting tooltip appears |
+| `widgetSize` | string | "standard" | "compact" (340×460), "standard" (380×520), or "large" (420×600) |
+| `soundEnabled` | boolean | true | Play a chime when the bot responds |
+| `darkMode` | string | "light" | "light", "dark", or "auto" (follows visitor's system preference) |
 
 After inserting, copy the generated `id` (UUID). You will need it for the embed script.
 
@@ -152,15 +196,28 @@ Before giving anything to the client, test the chatbot yourself.
 - Ask the bot if it is a human. Verify it identifies itself as an AI assistant.
 - Send a message in another language (e.g., Spanish). Verify the bot responds in that language.
 
+**Premium features (if configured):**
+- If `botAvatarUrl` is set: verify the avatar image appears in the header and next to each bot message. If the URL is broken, verify the first-letter fallback appears instead.
+- If `darkMode` is "dark": verify the entire widget renders with dark backgrounds and light text. If "auto": toggle your system dark mode preference and verify the widget switches live.
+- If `widgetSize` is set: verify the panel matches the expected dimensions (compact: 340×460, large: 420×600).
+- If `soundEnabled` is true (default): send a message and verify a subtle chime plays when the bot responds. Click inside the widget first (browser autoplay policy requires interaction).
+- If `autoOpenDelay` is set: reload the page and wait the configured seconds — verify the panel opens automatically. Close it, reload — verify it does NOT auto-open again in the same session.
+- If `greetingDelay` is set: verify the greeting tooltip appears after the configured delay (not the default 3 seconds).
+- Verify timestamps appear below each message (e.g., "just now", "2m ago").
+- Verify the copy button appears on completed bot messages. Click it and verify the content is copied to clipboard (checkmark icon should appear for 2 seconds).
+- Verify "is typing" text appears next to the typing dots when the bot is generating.
+- After the bot responds, verify starter questions re-appear as follow-up suggestions. They should disappear when you send the next message.
+
 **Edge cases:**
 - Send an empty message or just whitespace. Verify the widget handles it gracefully (should not send).
 - Send a very long message (close to 1,000 characters). Verify it works.
 - Send several messages quickly. Verify rate limiting works and the message is user-friendly.
 - Close and reopen the widget. Verify the conversation history persists.
+- Close the widget while the bot is responding. Verify the unread badge appears on the bubble button with the correct count. Open the widget — verify the badge resets to zero.
 
 **Mobile:**
 - Test on a phone or using browser dev tools in mobile viewport.
-- Verify full-screen overlay behavior.
+- Verify full-screen overlay behavior (all widget sizes become fullscreen on mobile).
 - Verify the input bar is not hidden behind the keyboard.
 
 If any test fails, fix the issue before proceeding. Common fixes:

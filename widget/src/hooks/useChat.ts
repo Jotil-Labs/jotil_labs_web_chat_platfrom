@@ -17,7 +17,8 @@ interface UseChatResult {
   sendMessage: (text: string) => void;
   cancelStream: () => void;
   retry: () => void;
-  loadHistory: () => Promise<void>;
+  loadHistory: (expiryHours?: number | null) => Promise<void>;
+  resetConversation: () => void;
   submitFeedback: (messageId: string, feedback: 'positive' | 'negative') => Promise<void>;
 }
 
@@ -47,7 +48,7 @@ export function useChat(apiBase: string, clientId: string): UseChatResult {
   const lastUserMessageRef = useRef<string>('');
   const visitorId = useRef(getVisitorId());
 
-  const loadHistory = useCallback(async () => {
+  const loadHistory = useCallback(async (expiryHours?: number | null) => {
     try {
       const res = await fetch(
         `${apiBase}/api/conversations?clientId=${encodeURIComponent(clientId)}&visitorId=${encodeURIComponent(visitorId.current)}`
@@ -56,6 +57,15 @@ export function useChat(apiBase: string, clientId: string): UseChatResult {
 
       const data = await res.json();
       if (data.conversation && data.messages.length > 0) {
+        // Auto-expire: if last message is older than expiryHours, start fresh
+        if (expiryHours && data.conversation.lastMessageAt) {
+          const lastMessageTime = new Date(data.conversation.lastMessageAt).getTime();
+          const expiryMs = expiryHours * 60 * 60 * 1000;
+          if (Date.now() - lastMessageTime > expiryMs) {
+            return; // Don't load stale conversation — next message creates a new one
+          }
+        }
+
         setConversationId(data.conversation.id);
         setMessages(
           data.messages.map((m: { id: string; role: string; content: string; createdAt: string; feedback?: string }) => ({
@@ -71,6 +81,18 @@ export function useChat(apiBase: string, clientId: string): UseChatResult {
       // Silently fail history load
     }
   }, [apiBase, clientId]);
+
+  const resetConversation = useCallback(() => {
+    if (isStreaming && abortRef.current) {
+      abortRef.current.abort();
+      abortRef.current = null;
+    }
+    setMessages([]);
+    setConversationId(null);
+    setError(null);
+    setIsStreaming(false);
+    lastUserMessageRef.current = '';
+  }, [isStreaming]);
 
   const sendMessage = useCallback(
     (text: string) => {
@@ -231,6 +253,7 @@ export function useChat(apiBase: string, clientId: string): UseChatResult {
     cancelStream,
     retry,
     loadHistory,
+    resetConversation,
     submitFeedback,
   };
 }
