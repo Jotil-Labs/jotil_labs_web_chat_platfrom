@@ -18,7 +18,7 @@ The Vercel AI SDK is the core dependency for all AI interactions. It provides a 
 
 | Layer | Technology | Purpose |
 |-------|-----------|---------|
-| Widget (client-side) | Preact | Embeddable chat UI, under 15KB gzipped |
+| Widget (client-side) | Preact | Embeddable chat UI, under 50KB gzipped |
 | Backend | Next.js (App Router) on Vercel | API routes, SSE streaming, admin pages (Phase 2) |
 | AI Orchestration | Vercel AI SDK | Multi-provider model routing, streamText, token streaming |
 | Database | Supabase (PostgreSQL) | Client configs, conversations, messages, usage tracking |
@@ -180,6 +180,8 @@ jotil-chat/
 |   |   |-- utils/
 |   |       |-- markdown.ts         # Safe markdown-to-HTML renderer
 |   |       |-- contrast.ts         # Auto-contrast color calculation
+|   |       |-- time.ts             # Relative timestamp formatting
+|   |       |-- sound.ts            # Web Audio API notification sound
 |   |-- build/                      # Compiled widget bundle (single JS file)
 |   |-- vite.config.ts              # Widget build config (Preact, single-file output)
 |-- supabase/
@@ -219,7 +221,7 @@ Stores each paying client's account and widget configuration.
 | border_radius | integer | Widget corner radius in px |
 | position | text | "bottom-right" or "bottom-left" |
 | document_context | text | Optional reference content the AI uses for answers |
-| customization | jsonb | Extensible widget appearance options (see `widget_customization.md`) |
+| customization | jsonb | Extensible widget options: `bubbleIconUrl`, `logoUrl`, `greetingMessage`, `glowEffect`, `botAvatarUrl`, `autoOpenDelay`, `greetingDelay`, `widgetSize`, `soundEnabled`, `darkMode` |
 | plan | text | "starter", "pro", "agency", "enterprise" |
 | message_limit | integer | Monthly message cap based on plan |
 | messages_used | integer | Current month usage counter |
@@ -421,7 +423,16 @@ Returns widget configuration for a given client. Called once when the widget loa
   "bubbleIconUrl": "string | null",
   "logoUrl": "string | null",
   "greetingMessage": "string | null",
-  "glowEffect": false
+  "glowEffect": false,
+  "starterQuestions": ["string"] | null,
+  "showWatermark": true,
+  "conversationExpiryHours": 24,
+  "botAvatarUrl": "string | null",
+  "autoOpenDelay": "number | null",
+  "greetingDelay": 3,
+  "widgetSize": "compact | standard | large",
+  "soundEnabled": true,
+  "darkMode": "light | dark | auto"
 }
 ```
 
@@ -517,7 +528,7 @@ The widget uses Shadow DOM to prevent CSS conflicts between the widget and the h
 
 ### Build Output
 
-The widget build process (Vite) produces a single JavaScript file that includes the Preact runtime, all components, and all CSS (injected via JS into the Shadow DOM). Target size: under 15KB gzipped.
+The widget build process (Vite) produces a single JavaScript file that includes the Preact runtime, all components, and all CSS (injected via JS into the Shadow DOM). Target size: under 50KB gzipped (currently ~17KB).
 
 ---
 
@@ -650,7 +661,7 @@ NEXT_PUBLIC_WIDGET_URL=https://chat.jotil.com
 
 | Concern | Approach |
 |---------|----------|
-| Widget load speed | Single JS file under 15KB gzipped, loaded async, Shadow DOM avoids layout recalculation |
+| Widget load speed | Single JS file under 50KB gzipped (~17KB currently), loaded async, Shadow DOM avoids layout recalculation |
 | Time to first token | Edge runtime on Vercel for the /api/chat route minimizes cold start latency |
 | Streaming smoothness | Tokens rendered via requestAnimationFrame, no React reconciliation overhead (Preact is lighter) |
 | Database query latency | Client config can be cached in-memory or via Vercel KV after first fetch |
