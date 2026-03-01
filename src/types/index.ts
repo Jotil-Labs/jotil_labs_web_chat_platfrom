@@ -117,3 +117,45 @@ export interface ModelDefinition {
   provider: string;
   defaultForPlan: Plan | null;
 }
+
+// Dashboard types
+
+export type UserRole = 'admin' | 'client';
+
+export interface AdminUser {
+  id: string;
+  email: string;
+  role: UserRole;
+  client_id: string | null;
+  display_name: string | null;
+  created_at: string;
+}
+
+export interface ClientCreateInput {
+  name: string;
+  domain: string;
+  bot_name: string;
+  welcome_message: string;
+  system_prompt: string;
+  ai_model: string;
+  primary_color: string;
+  border_radius?: number;
+  position?: Position;
+  document_context?: string | null;
+  customization?: ClientCustomization;
+  starter_questions?: string[] | null;
+  show_watermark?: boolean;
+  conversation_expiry_hours?: number;
+  plan: Plan;
+  message_limit: number;
+  billing_email?: string;
+}
+
+export type ClientUpdateInput = Partial<ClientCreateInput> & {
+  active?: boolean;
+};
+
+export interface ConversationWithStats extends Conversation {
+  message_count: number;
+  last_message_preview: string | null;
+}
